@@ -47,3 +47,4 @@ venv/
 # Misc
 *.log
 .vercel
+scr.md

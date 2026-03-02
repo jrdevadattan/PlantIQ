@@ -881,7 +881,59 @@ The hackathon grades on 70% Technical + 30% Presentation. Here is how our soluti
 
 ---
 
-## 👥 Team
+## � Future Scope
+
+### 1. Operator Feedback Loop — Human-in-the-Loop Correction
+
+Currently the ML models predict outcomes and the operator can approve or dismiss anomaly alerts. In a production deployment, we would extend this so that **operators can correct the model's predictions after the batch completes**.
+
+**How it would work:**
+
+```
+Batch ends → System shows predicted vs actual values
+           → Operator reviews and can flag:
+               • "Prediction was wrong — actual quality was 85%, not 91%"
+               • "This anomaly alert was a false positive"
+               • "There was a real problem the system missed"
+           → Corrections are logged to a feedback table
+           → Next retraining cycle incorporates corrections as ground truth
+```
+
+This creates a **continuous improvement loop** where the model gets smarter with every batch it runs. Operators become co-trainers of the AI — their domain expertise directly improves prediction accuracy over time. It also builds trust, because operators see that their input actually changes the system's behavior.
+
+### 2. Reward-Based Learning System (Reinforcement from Human Feedback)
+
+Beyond simple corrections, we plan to implement a **reward/penalty scoring system** inspired by RLHF (Reinforcement Learning from Human Feedback):
+
+| Operator Action | Signal to Model |
+|---|---|
+| Approves anomaly alert + takes action | **Positive reward** — model was right to flag this |
+| Dismisses anomaly alert | **Negative penalty** — model raised a false alarm |
+| Corrects a prediction closer to actual | **Calibration signal** — model was biased in this direction |
+| Gives no feedback (default) | **Neutral** — no update |
+
+Over time, these reward signals are aggregated and used to:
+- **Adjust anomaly thresholds** — if operators keep dismissing alerts at score 0.35, the threshold should be raised
+- **Weight training samples** — batches where the operator corrected the model are weighted higher in the next training cycle
+- **Personalize per shift/operator** — different operators may have different tolerances; the system adapts
+
+**Technical implementation path:**
+- Store feedback in a `feedback` table (batch_id, operator_id, feedback_type, correction_value, timestamp)
+- Nightly retraining job pulls feedback-weighted samples
+- LSTM Autoencoder threshold becomes adaptive rather than fixed
+- Dashboard shows a "Model Improvement" metric tracking accuracy gains from operator feedback over time
+
+### 3. Additional Future Enhancements
+
+- **Multi-plant deployment** — federated learning across factory sites, sharing model improvements without sharing raw data
+- **Predictive maintenance scheduling** — extend bearing wear detection into a remaining-useful-life (RUL) predictor
+- **Carbon footprint tracking** — map energy savings to CO2 reduction using regional emission factors
+- **Mobile alerts** — push notifications to operator phones for critical anomalies when away from the dashboard
+- **Digital twin integration** — connect predictions to a 3D factory simulation for visual what-if analysis
+
+---
+
+## �👥 Team
 
 | Name | Role |
 |---|---|
