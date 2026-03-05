@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   LineChart,
   Line,
@@ -19,8 +19,11 @@ import {
   TbPlayerPlay,
   TbPlayerPause,
   TbRefresh,
+  TbAlertTriangle,
 } from "react-icons/tb";
 import { cn } from "@/lib/utils";
+import { detectAnomaly } from "@/lib/api";
+import type { AnomalyDetectResponse } from "@/lib/api";
 
 // Generate a realistic power reading
 function nextPowerReading(t: number, faultType: string = "normal"): number {
@@ -53,12 +56,27 @@ export function LiveMonitor() {
   const [powerData, setPowerData] = useState<{ time: number; power: number }[]>([]);
   const [energyConsumed, setEnergyConsumed] = useState(0);
   const [anomalyScore, setAnomalyScore] = useState(0.08);
+  const [anomalyResult, setAnomalyResult] = useState<AnomalyDetectResponse | null>(null);
   const tickRef = useRef(0);
+  const powerAccRef = useRef<number[]>([]);
 
   // Sliding window forecast data
   const [forecastData, setForecastData] = useState([
     { min: 0, predicted: 38.8, lower: 32.8, upper: 44.8 },
   ]);
+
+  // Send accumulated power readings to backend for real anomaly detection
+  const runAnomalyCheck = useCallback(async (readings: number[], elapsed: number) => {
+    try {
+      const batchId = `live-${faultType}-${Date.now()}`;
+      const response = await detectAnomaly(batchId, readings, elapsed);
+      setAnomalyScore(response.anomaly_score);
+      setAnomalyResult(response);
+    } catch (err) {
+      console.error("[LiveMonitor] Anomaly check failed:", err);
+      // Keep last known score on failure
+    }
+  }, [faultType]);
 
   useEffect(() => {
     if (!isRunning) return;
@@ -68,6 +86,9 @@ export function LiveMonitor() {
       const t = tickRef.current;
       const power = nextPowerReading(t, faultType);
 
+      // Accumulate raw readings for anomaly detection
+      powerAccRef.current.push(power);
+
       setPowerData((prev) => {
         const next = [...prev, { time: t, power }];
         return next.length > 300 ? next.slice(-300) : next;
@@ -76,15 +97,9 @@ export function LiveMonitor() {
       // Accumulate energy (kW * 1 second / 3600 = kWh)
       setEnergyConsumed((prev) => prev + power / 3600);
 
-      // Update anomaly score periodically
-      if (t % 30 === 0) {
-        if (faultType === "wet_material" && t > 120) {
-          setAnomalyScore(0.3 + Math.random() * 0.5);
-        } else if (faultType === "bearing_wear" && t > 200) {
-          setAnomalyScore(0.2 + Math.random() * 0.3);
-        } else {
-          setAnomalyScore(0.02 + Math.random() * 0.12);
-        }
+      // Send to backend for real anomaly scoring every 30 ticks
+      if (t % 30 === 0 && powerAccRef.current.length > 0) {
+        runAnomalyCheck([...powerAccRef.current], t);
       }
 
       // Update forecast every 30 ticks (~30 seconds)
@@ -110,9 +125,11 @@ export function LiveMonitor() {
 
   const resetSimulation = () => {
     tickRef.current = 0;
+    powerAccRef.current = [];
     setPowerData([]);
     setEnergyConsumed(0);
     setAnomalyScore(0.08);
+    setAnomalyResult(null);
     setForecastData([{ min: 0, predicted: 38.8, lower: 32.8, upper: 44.8 }]);
   };
 
@@ -217,6 +234,37 @@ export function LiveMonitor() {
           </div>
         </div>
       </div>
+
+      {/* Real-time Anomaly Alert (from backend) */}
+      {anomalyResult && anomalyResult.is_anomaly && (
+        <div className={cn(
+          "rounded-xl border p-4",
+          anomalyResult.severity === "CRITICAL" ? "bg-red-50 border-red-100" : "bg-amber-50 border-amber-100"
+        )}>
+          <div className="flex items-start gap-3">
+            <TbAlertTriangle className={cn(
+              "w-5 h-5 flex-shrink-0 mt-0.5",
+              anomalyResult.severity === "CRITICAL" ? "text-red-500" : "text-amber-500"
+            )} />
+            <div>
+              <p className={cn(
+                "text-xs font-bold",
+                anomalyResult.severity === "CRITICAL" ? "text-red-700" : "text-amber-700"
+              )}>
+                {anomalyResult.severity} — {anomalyResult.diagnosis?.fault_type ?? "Unknown"}
+              </p>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                {anomalyResult.diagnosis?.human_readable ?? "Anomaly detected in power curve"}
+              </p>
+              {anomalyResult.diagnosis?.recommended_action && (
+                <p className="text-[11px] text-slate-600 mt-1 font-medium">
+                  Action: {anomalyResult.diagnosis.recommended_action}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Power Curve Chart */}
       <div className="bg-white rounded-xl border border-slate-100 p-5">

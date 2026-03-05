@@ -1,0 +1,89 @@
+{
+  "data_source": "hackathon_production_data",
+  "n_batches": 60,
+  "n_train": 48,
+  "n_test": 12,
+  "feature_cols": [
+    "Granulation_Time",
+    "Binder_Amount",
+    "Drying_Temp",
+    "Drying_Time",
+    "Compression_Force",
+    "Machine_Speed",
+    "Lubricant_Conc",
+    "granulation_intensity",
+    "drying_intensity",
+    "compression_speed_ratio",
+    "binder_per_time",
+    "drying_efficiency",
+    "force_lubricant_ratio",
+    "machine_load_index"
+  ],
+  "target_cols": [
+    "Moisture_Content",
+    "Tablet_Weight",
+    "Hardness",
+    "Friability",
+    "Disintegration_Time",
+    "Dissolution_Rate",
+    "Content_Uniformity"
+  ],
+  "results": {
+    "per_target": {
+      "Moisture_Content": {
+        "mae": 0.0566,
+        "rmse": 0.0747,
+        "mape": 2.99,
+        "r2": 0.9888,
+        "accuracy_pct": 97.01
+      },
+      "Tablet_Weight": {
+        "mae": 0.5895,
+        "rmse": 0.7257,
+        "mape": 0.29,
+        "r2": 0.9175,
+        "accuracy_pct": 99.71
+      },
+      "Hardness": {
+        "mae": 1.7426,
+        "rmse": 2.1753,
+        "mape": 1.94,
+        "r2": 0.9895,
+        "accuracy_pct": 98.06
+      },
+      "Friability": {
+        "mae": 0.0194,
+        "rmse": 0.0239,
+        "mape": 2.89,
+        "r2": 0.9926,
+        "accuracy_pct": 97.11
+      },
+      "Disintegration_Time": {
+        "mae": 0.3608,
+        "rmse": 0.5826,
+        "mape": 3.45,
+        "r2": 0.9776,
+        "accuracy_pct": 96.55
+      },
+      "Dissolution_Rate": {
+        "mae": 0.4053,
+        "rmse": 0.6401,
+        "mape": 0.46,
+        "r2": 0.9786,
+        "accuracy_pct": 99.54
+      },
+      "Content_Uniformity": {
+        "mae": 0.4334,
+        "rmse": 0.5246,
+        "mape": 0.44,
+        "r2": 0.9783,
+        "accuracy_pct": 99.56
+      }
+    },
+    "overall": {
+      "avg_accuracy_pct": 98.22,
+      "avg_r2": 0.9747,
+      "meets_90pct_target": true
+    }
+  }
+}

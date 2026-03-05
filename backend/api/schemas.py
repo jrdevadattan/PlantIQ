@@ -171,3 +171,85 @@ class ModelFeaturesResponse(BaseModel):
     performance: dict[str, float]
 
     model_config = {"populate_by_name": True}
+
+
+# ══════════════════════════════════════════════════════════════
+# Golden Signature
+# ══════════════════════════════════════════════════════════════
+
+class GoldenSignatureDiscoverRequest(BaseModel):
+    """POST /golden-signature/discover request."""
+    data_source: str = Field(
+        default="synthetic",
+        description="Data source: 'synthetic' or 'hackathon'",
+    )
+    n_top: int = Field(default=5, ge=1, le=20, description="Number of top Pareto-optimal batches")
+
+
+class GoldenSignatureCompareRequest(BaseModel):
+    """POST /golden-signature/compare request."""
+    batch_params: dict = Field(..., description="Batch input parameters")
+    batch_targets: dict = Field(..., description="Batch target outcomes")
+    scenario_id: Optional[str] = Field(default=None, description="Specific scenario to compare against")
+
+
+class GoldenSignatureUpdateRequest(BaseModel):
+    """POST /golden-signature/update request."""
+    batch_params: dict = Field(..., description="Batch input parameters")
+    batch_targets: dict = Field(..., description="Batch target outcomes")
+    target_cols: list[str] = Field(..., description="Target column names")
+
+
+class ScenarioRequest(BaseModel):
+    """POST /golden-signature/scenario request."""
+    primary_targets: list[str] = Field(..., min_length=1, description="Primary optimization targets")
+    secondary_targets: Optional[list[str]] = Field(default=None, description="Secondary targets")
+    primary_weight: float = Field(default=0.7, ge=0.0, le=1.0, description="Weight for primary targets")
+    data_source: str = Field(default="synthetic", description="Data source: 'synthetic' or 'hackathon'")
+
+
+# ══════════════════════════════════════════════════════════════
+# Adaptive Targets
+# ══════════════════════════════════════════════════════════════
+
+class AdaptiveTargetInitRequest(BaseModel):
+    """POST /targets/initialize request."""
+    data_source: str = Field(
+        default="synthetic",
+        description="Data source: 'synthetic' or 'hackathon'",
+    )
+
+
+class BatchTargetRequest(BaseModel):
+    """POST /targets/batch request."""
+    current_batch_number: Optional[int] = Field(default=None, ge=1, description="Current batch number")
+    annual_batches: int = Field(default=1000, ge=100, le=10000, description="Estimated annual batch count")
+
+
+class BatchAssessRequest(BaseModel):
+    """POST /targets/assess request."""
+    energy_kwh: float = Field(..., ge=0, description="Actual energy consumed (kWh)")
+    quality_score: Optional[float] = Field(default=None, ge=0, le=100)
+    yield_pct: Optional[float] = Field(default=None, ge=0, le=100)
+    performance_pct: Optional[float] = Field(default=None, ge=0, le=100)
+    batch_number: Optional[int] = Field(default=None, ge=1)
+
+
+# ══════════════════════════════════════════════════════════════
+# Hackathon Data
+# ══════════════════════════════════════════════════════════════
+
+class HackathonTrainRequest(BaseModel):
+    """POST /hackathon/train request."""
+    verbose: bool = Field(default=True, description="Print training progress")
+
+
+class HackathonPredictRequest(BaseModel):
+    """POST /hackathon/predict request — 7 pharma inputs."""
+    granulation_time: float = Field(..., ge=20, le=60, description="Granulation time (min)")
+    binder_amount: float = Field(..., ge=3.0, le=8.0, description="Binder amount (kg)")
+    drying_temp: float = Field(..., ge=40, le=70, description="Drying temperature (°C)")
+    drying_time: float = Field(..., ge=20, le=60, description="Drying time (min)")
+    compression_force: float = Field(..., ge=10, le=30, description="Compression force (kN)")
+    machine_speed: float = Field(..., ge=20, le=60, description="Machine speed (rpm)")
+    lubricant_conc: float = Field(..., ge=0.3, le=1.5, description="Lubricant concentration (%)")

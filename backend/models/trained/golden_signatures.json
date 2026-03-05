@@ -1,0 +1,575 @@
+{
+  "signatures": {
+    "Content_Uniformity_Dissolution_Rate_Friability": {
+      "scenario_id": "Content_Uniformity_Dissolution_Rate_Friability",
+      "created_at": "2026-03-06T00:47:14.268259",
+      "n_batches_analyzed": 60,
+      "n_pareto_optimal": 42,
+      "golden_parameters": {
+        "Granulation_Time": {
+          "optimal": 16.6429,
+          "min_range": 9.0,
+          "max_range": 27.0,
+          "std": 4.566
+        },
+        "Binder_Amount": {
+          "optimal": 9.0571,
+          "min_range": 5.8,
+          "max_range": 13.5,
+          "std": 1.8807
+        },
+        "Drying_Temp": {
+          "optimal": 59.0952,
+          "min_range": 42.0,
+          "max_range": 73.0,
+          "std": 7.5018
+        },
+        "Drying_Time": {
+          "optimal": 29.0,
+          "min_range": 15.0,
+          "max_range": 48.0,
+          "std": 8.3638
+        },
+        "Compression_Force": {
+          "optimal": 11.5952,
+          "min_range": 4.5,
+          "max_range": 18.0,
+          "std": 3.5531
+        },
+        "Machine_Speed": {
+          "optimal": 170.3095,
+          "min_range": 92.0,
+          "max_range": 280.0,
+          "std": 47.4349
+        },
+        "Lubricant_Conc": {
+          "optimal": 1.231,
+          "min_range": 0.4,
+          "max_range": 2.8,
+          "std": 0.587
+        }
+      },
+      "expected_targets": {
+        "Content_Uniformity": {
+          "expected": 98.2143,
+          "best": 100.1,
+          "direction": "target"
+        },
+        "Dissolution_Rate": {
+          "expected": 91.1214,
+          "best": 99.9,
+          "direction": "maximize"
+        },
+        "Friability": {
+          "expected": 0.7921,
+          "best": 0.29,
+          "direction": "minimize"
+        }
+      },
+      "composite_score": 0.6235,
+      "top_batch_ids": [
+        "T059",
+        "T039",
+        "T048",
+        "T002",
+        "T019"
+      ]
+    },
+    "Hardness_Tablet_Weight_Moisture_Content": {
+      "scenario_id": "Hardness_Tablet_Weight_Moisture_Content",
+      "created_at": "2026-03-06T00:47:14.289421",
+      "n_batches_analyzed": 60,
+      "n_pareto_optimal": 22,
+      "golden_parameters": {
+        "Granulation_Time": {
+          "optimal": 12.6818,
+          "min_range": 9.0,
+          "max_range": 16.0,
+          "std": 1.963
+        },
+        "Binder_Amount": {
+          "optimal": 7.4636,
+          "min_range": 5.8,
+          "max_range": 8.9,
+          "std": 0.837
+        },
+        "Drying_Temp": {
+          "optimal": 65.4091,
+          "min_range": 59.0,
+          "max_range": 73.0,
+          "std": 3.8217
+        },
+        "Drying_Time": {
+          "optimal": 21.6364,
+          "min_range": 15.0,
+          "max_range": 29.0,
+          "std": 3.4581
+        },
+        "Compression_Force": {
+          "optimal": 14.7545,
+          "min_range": 11.8,
+          "max_range": 18.0,
+          "std": 1.6239
+        },
+        "Machine_Speed": {
+          "optimal": 129.6364,
+          "min_range": 92.0,
+          "max_range": 168.0,
+          "std": 20.3393
+        },
+        "Lubricant_Conc": {
+          "optimal": 0.7364,
+          "min_range": 0.4,
+          "max_range": 1.1,
+          "std": 0.1967
+        }
+      },
+      "expected_targets": {
+        "Hardness": {
+          "expected": 111.5455,
+          "best": 135.0,
+          "direction": "maximize"
+        },
+        "Tablet_Weight": {
+          "expected": 201.6955,
+          "best": 200.1,
+          "direction": "target"
+        },
+        "Moisture_Content": {
+          "expected": 2.6636,
+          "best": 2.0,
+          "direction": "target"
+        }
+      },
+      "composite_score": 0.7514,
+      "top_batch_ids": [
+        "T024",
+        "T001",
+        "T041",
+        "T055",
+        "T035"
+      ]
+    },
+    "Moisture_Content_Tablet_Weight_Hardness_Friability_Disintegration_Time_Dissolution_Rate_Content_Uniformity": {
+      "scenario_id": "Moisture_Content_Tablet_Weight_Hardness_Friability_Disintegration_Time_Dissolution_Rate_Content_Uniformity",
+      "created_at": "2026-03-06T01:01:18.475437",
+      "n_batches_analyzed": 60,
+      "n_pareto_optimal": 56,
+      "golden_parameters": {
+        "Granulation_Time": {
+          "optimal": 16.7679,
+          "min_range": 9.0,
+          "max_range": 27.0,
+          "std": 4.4521
+        },
+        "Binder_Amount": {
+          "optimal": 9.1036,
+          "min_range": 5.8,
+          "max_range": 13.5,
+          "std": 1.8242
+        },
+        "Drying_Temp": {
+          "optimal": 59.0357,
+          "min_range": 42.0,
+          "max_range": 73.0,
+          "std": 7.1263
+        },
+        "Drying_Time": {
+          "optimal": 29.2321,
+          "min_range": 15.0,
+          "max_range": 48.0,
+          "std": 8.1962
+        },
+        "Compression_Force": {
+          "optimal": 11.4446,
+          "min_range": 4.5,
+          "max_range": 18.0,
+          "std": 3.4827
+        },
+        "Machine_Speed": {
+          "optimal": 171.3036,
+          "min_range": 92.0,
+          "max_range": 280.0,
+          "std": 46.0372
+        },
+        "Lubricant_Conc": {
+          "optimal": 1.2393,
+          "min_range": 0.4,
+          "max_range": 2.8,
+          "std": 0.5694
+        },
+        "granulation_intensity": {
+          "optimal": 160.7411,
+          "min_range": 52.2,
+          "max_range": 364.5,
+          "std": 74.6275
+        },
+        "drying_intensity": {
+          "optimal": 1668.2857,
+          "min_range": 1095.0,
+          "max_range": 2064.0,
+          "std": 269.8258
+        },
+        "compression_speed_ratio": {
+          "optimal": 0.0777,
+          "min_range": 0.0161,
+          "max_range": 0.1957,
+          "std": 0.0432
+        },
+        "binder_per_time": {
+          "optimal": 0.5532,
+          "min_range": 0.5,
+          "max_range": 0.6667,
+          "std": 0.0418
+        },
+        "drying_efficiency": {
+          "optimal": 2.2638,
+          "min_range": 0.875,
+          "max_range": 4.8667,
+          "std": 0.9214
+        },
+        "force_lubricant_ratio": {
+          "optimal": 13.082,
+          "min_range": 1.6071,
+          "max_range": 45.0,
+          "std": 9.998
+        },
+        "machine_load_index": {
+          "optimal": 1802.1821,
+          "min_range": 1260.0,
+          "max_range": 2127.5,
+          "std": 183.2997
+        }
+      },
+      "expected_targets": {
+        "Moisture_Content": {
+          "expected": 1.975,
+          "best": 2.0,
+          "direction": "target"
+        },
+        "Tablet_Weight": {
+          "expected": 202.4768,
+          "best": 200.1,
+          "direction": "target"
+        },
+        "Hardness": {
+          "expected": 89.4643,
+          "best": 135.0,
+          "direction": "maximize"
+        },
+        "Friability": {
+          "expected": 0.8004,
+          "best": 0.29,
+          "direction": "minimize"
+        },
+        "Disintegration_Time": {
+          "expected": 8.0286,
+          "best": 2.6,
+          "direction": "minimize"
+        },
+        "Dissolution_Rate": {
+          "expected": 91.1714,
+          "best": 99.9,
+          "direction": "maximize"
+        },
+        "Content_Uniformity": {
+          "expected": 98.1286,
+          "best": 100.1,
+          "direction": "target"
+        }
+      },
+      "composite_score": 0.6395,
+      "top_batch_ids": [
+        "T019",
+        "T041",
+        "T001",
+        "T024",
+        "T055"
+      ]
+    },
+    "quality_score_yield_pct_performance_pct_energy_kwh": {
+      "scenario_id": "quality_score_yield_pct_performance_pct_energy_kwh",
+      "created_at": "2026-03-06T01:01:16.369435",
+      "n_batches_analyzed": 2000,
+      "n_pareto_optimal": 27,
+      "golden_parameters": {
+        "temperature": {
+          "optimal": 182.8889,
+          "min_range": 178.7,
+          "max_range": 186.5,
+          "std": 1.9076
+        },
+        "conveyor_speed": {
+          "optimal": 74.1,
+          "min_range": 69.4,
+          "max_range": 77.2,
+          "std": 2.2711
+        },
+        "hold_time": {
+          "optimal": 14.2926,
+          "min_range": 10.0,
+          "max_range": 21.4,
+          "std": 3.0009
+        },
+        "batch_size": {
+          "optimal": 446.1481,
+          "min_range": 330.0,
+          "max_range": 563.0,
+          "std": 64.6946
+        },
+        "hour_of_day": {
+          "optimal": 12.7037,
+          "min_range": 6.0,
+          "max_range": 21.0,
+          "std": 4.1349
+        },
+        "operator_exp": {
+          "optimal": 1.7407,
+          "min_range": 1.0,
+          "max_range": 2.0,
+          "std": 0.4382
+        },
+        "material_type": {
+          "optimal": 0.0741,
+          "min_range": 0.0,
+          "max_range": 1.0,
+          "std": 0.2619
+        },
+        "temp_speed_product": {
+          "optimal": 13550.7444,
+          "min_range": 12651.6,
+          "max_range": 14228.0,
+          "std": 396.6234
+        },
+        "temp_deviation": {
+          "optimal": 1.4148,
+          "min_range": 0.1,
+          "max_range": 4.3,
+          "std": 1.2843
+        },
+        "speed_deviation": {
+          "optimal": 1.9,
+          "min_range": 0.0,
+          "max_range": 5.6,
+          "std": 1.5355
+        },
+        "hold_per_kg": {
+          "optimal": 0.0329,
+          "min_range": 0.0219,
+          "max_range": 0.0533,
+          "std": 0.0089
+        },
+        "shift": {
+          "optimal": 0.3333,
+          "min_range": 0.0,
+          "max_range": 1.0,
+          "std": 0.4714
+        },
+        "hours_into_shift": {
+          "optimal": 4.037,
+          "min_range": 0.0,
+          "max_range": 7.0,
+          "std": 1.9145
+        }
+      },
+      "expected_targets": {
+        "quality_score": {
+          "expected": 96.8889,
+          "best": 99.9,
+          "direction": "maximize"
+        },
+        "yield_pct": {
+          "expected": 96.2,
+          "best": 99.4,
+          "direction": "maximize"
+        },
+        "performance_pct": {
+          "expected": 94.6296,
+          "best": 98.4,
+          "direction": "maximize"
+        },
+        "energy_kwh": {
+          "expected": 27.9556,
+          "best": 25.0,
+          "direction": "minimize"
+        }
+      },
+      "composite_score": 0.8221,
+      "top_batch_ids": [
+        1443,
+        1917,
+        962,
+        8,
+        1920
+      ]
+    },
+    "quality_score_yield_pct_energy_kwh": {
+      "scenario_id": "quality_score_yield_pct_energy_kwh",
+      "created_at": "2026-03-06T01:01:24.827843",
+      "n_batches_analyzed": 2000,
+      "n_pareto_optimal": 9,
+      "golden_parameters": {
+        "temperature": {
+          "optimal": 183.2667,
+          "min_range": 182.0,
+          "max_range": 186.5,
+          "std": 1.2649
+        },
+        "conveyor_speed": {
+          "optimal": 73.4333,
+          "min_range": 69.4,
+          "max_range": 76.8,
+          "std": 2.6204
+        },
+        "hold_time": {
+          "optimal": 13.8778,
+          "min_range": 10.5,
+          "max_range": 21.4,
+          "std": 3.3714
+        },
+        "batch_size": {
+          "optimal": 449.1111,
+          "min_range": 350.0,
+          "max_range": 512.0,
+          "std": 57.547
+        },
+        "hour_of_day": {
+          "optimal": 11.3333,
+          "min_range": 8.0,
+          "max_range": 18.0,
+          "std": 2.9814
+        },
+        "operator_exp": {
+          "optimal": 1.7778,
+          "min_range": 1.0,
+          "max_range": 2.0,
+          "std": 0.4157
+        },
+        "material_type": {
+          "optimal": 0.0,
+          "min_range": 0.0,
+          "max_range": 0.0,
+          "std": 0.0
+        },
+        "temp_speed_product": {
+          "optimal": 13457.2222,
+          "min_range": 12651.6,
+          "max_range": 14010.1,
+          "std": 469.5595
+        },
+        "temp_deviation": {
+          "optimal": 0.8444,
+          "min_range": 0.1,
+          "max_range": 3.5,
+          "std": 0.9788
+        },
+        "speed_deviation": {
+          "optimal": 2.5,
+          "min_range": 0.3,
+          "max_range": 5.6,
+          "std": 1.7525
+        },
+        "hold_per_kg": {
+          "optimal": 0.0317,
+          "min_range": 0.0219,
+          "max_range": 0.0491,
+          "std": 0.0095
+        },
+        "shift": {
+          "optimal": 0.2222,
+          "min_range": 0.0,
+          "max_range": 1.0,
+          "std": 0.4157
+        },
+        "hours_into_shift": {
+          "optimal": 3.5556,
+          "min_range": 0.0,
+          "max_range": 7.0,
+          "std": 1.8325
+        }
+      },
+      "expected_targets": {
+        "quality_score": {
+          "expected": 97.3556,
+          "best": 99.9,
+          "direction": "maximize"
+        },
+        "yield_pct": {
+          "expected": 96.6778,
+          "best": 99.4,
+          "direction": "maximize"
+        },
+        "energy_kwh": {
+          "expected": 27.5111,
+          "best": 25.0,
+          "direction": "minimize"
+        }
+      },
+      "composite_score": 0.8583,
+      "top_batch_ids": [
+        1920,
+        1443,
+        962,
+        1785,
+        1394
+      ]
+    }
+  },
+  "history": [
+    {
+      "action": "discover",
+      "scenario_id": "Content_Uniformity_Dissolution_Rate_Friability",
+      "timestamp": "2026-03-06T00:47:14.268413",
+      "composite_score": 0.6235
+    },
+    {
+      "action": "discover",
+      "scenario_id": "Hardness_Tablet_Weight_Moisture_Content",
+      "timestamp": "2026-03-06T00:47:14.289551",
+      "composite_score": 0.7514
+    },
+    {
+      "action": "discover",
+      "scenario_id": "Moisture_Content_Tablet_Weight_Hardness_Friability_Disintegration_Time_Dissolution_Rate_Content_Uniformity",
+      "timestamp": "2026-03-06T00:47:14.304766",
+      "composite_score": 0.6395
+    },
+    {
+      "action": "discover",
+      "scenario_id": "quality_score_yield_pct_performance_pct_energy_kwh",
+      "timestamp": "2026-03-06T00:55:26.805960",
+      "composite_score": 0.8221
+    },
+    {
+      "action": "discover",
+      "scenario_id": "Moisture_Content_Tablet_Weight_Hardness_Friability_Disintegration_Time_Dissolution_Rate_Content_Uniformity",
+      "timestamp": "2026-03-06T00:55:29.202510",
+      "composite_score": 0.6395
+    },
+    {
+      "action": "discover",
+      "scenario_id": "quality_score_yield_pct_energy_kwh",
+      "timestamp": "2026-03-06T00:55:35.559440",
+      "composite_score": 0.8583
+    },
+    {
+      "action": "discover",
+      "scenario_id": "quality_score_yield_pct_performance_pct_energy_kwh",
+      "timestamp": "2026-03-06T01:01:16.369553",
+      "composite_score": 0.8221
+    },
+    {
+      "action": "discover",
+      "scenario_id": "Moisture_Content_Tablet_Weight_Hardness_Friability_Disintegration_Time_Dissolution_Rate_Content_Uniformity",
+      "timestamp": "2026-03-06T01:01:18.475775",
+      "composite_score": 0.6395
+    },
+    {
+      "action": "discover",
+      "scenario_id": "quality_score_yield_pct_energy_kwh",
+      "timestamp": "2026-03-06T01:01:24.827928",
+      "composite_score": 0.8583
+    }
+  ],
+  "last_updated": "2026-03-06T01:01:24.828185"
+}

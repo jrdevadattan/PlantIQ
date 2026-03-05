@@ -3,13 +3,15 @@ PlantIQ — Anomaly Detection Route
 ====================================
 POST /anomaly/detect — Analyze power curve segment for anomalies.
 
-Note: The LSTM Autoencoder (F2.1) and Fault Classifier (F2.2) are Tier 2
-features not yet implemented.  This route provides a statistical mock
-implementation that produces correctly-shaped responses matching the
-README API spec, to be replaced when models are built.
+Uses the LSTM Autoencoder (F2.1) when the trained model is available,
+falling back to statistical heuristics if the LSTM model hasn't been
+trained yet.  Fault diagnosis uses pattern-matching on the anomaly
+features.
 """
 
 from __future__ import annotations
+
+import logging
 
 import numpy as np
 from fastapi import APIRouter, HTTPException
@@ -20,6 +22,7 @@ from api.schemas import (
     DiagnosisInfo,
 )
 
+logger = logging.getLogger("plantiq.anomaly")
 router = APIRouter(tags=["anomaly"])
 
 # Anomaly thresholds per README spec
@@ -142,15 +145,49 @@ def _statistical_anomaly_detect(readings: list[float]) -> tuple[float, str, floa
 async def detect_anomaly(request: AnomalyDetectRequest) -> AnomalyDetectResponse:
     """Analyze a power curve segment for anomalies and diagnose fault type.
 
-    Currently uses statistical heuristics.  Will be upgraded to
-    LSTM Autoencoder + RandomForest fault classifier in Tier 2.
+    Uses the LSTM Autoencoder when available for reconstruction-based anomaly
+    scoring. Falls back to statistical heuristics if LSTM model not loaded.
     """
     if not request.power_readings:
         raise HTTPException(status_code=400, detail="power_readings must not be empty")
 
-    anomaly_score, fault_type, fault_confidence = _statistical_anomaly_detect(
-        request.power_readings
-    )
+    # Try LSTM first, fall back to statistical method
+    used_lstm = False
+    try:
+        from main import lstm_model
+        if lstm_model is not None:
+            from models.lstm_autoencoder import compute_anomaly_score
+            lstm_result = compute_anomaly_score(
+                model=lstm_model["model"],
+                curve=np.array(request.power_readings, dtype=np.float32),
+                threshold=lstm_model["threshold"],
+                normal_mean=lstm_model["normal_mean"],
+                normal_std=lstm_model["normal_std"],
+            )
+            anomaly_score = lstm_result["anomaly_score"]
+            used_lstm = True
+            logger.info(
+                "LSTM anomaly score for %s: %.4f (threshold=%.4f)",
+                request.batch_id, anomaly_score, lstm_result["threshold"],
+            )
+
+            # Use LSTM features for fault classification
+            fault_type, fault_confidence = _classify_fault_from_features(
+                request.power_readings, anomaly_score
+            )
+        else:
+            anomaly_score, fault_type, fault_confidence = _statistical_anomaly_detect(
+                request.power_readings
+            )
+    except ImportError:
+        anomaly_score, fault_type, fault_confidence = _statistical_anomaly_detect(
+            request.power_readings
+        )
+    except Exception as e:
+        logger.warning("LSTM detection failed, using statistical fallback: %s", e)
+        anomaly_score, fault_type, fault_confidence = _statistical_anomaly_detect(
+            request.power_readings
+        )
 
     is_anomaly = anomaly_score >= ANOMALY_THRESHOLD
     severity = _severity(anomaly_score)
@@ -173,3 +210,47 @@ async def detect_anomaly(request: AnomalyDetectRequest) -> AnomalyDetectResponse
         severity=severity,
         diagnosis=diagnosis,
     )
+
+
+def _classify_fault_from_features(
+    readings: list[float], anomaly_score: float
+) -> tuple[str, float]:
+    """Classify fault type from power curve features when using LSTM scoring.
+
+    Uses the same statistical features as the heuristic method but applies
+    them as a lightweight classifier on top of the LSTM anomaly score.
+
+    Returns
+    -------
+    tuple[str, float]
+        (fault_type, confidence)
+    """
+    arr = np.array(readings, dtype=np.float64)
+
+    if anomaly_score < 0.15:
+        return "normal", 0.95
+
+    mean_val = float(np.mean(arr))
+    std_val = float(np.std(arr))
+
+    # Trend slope
+    t = np.arange(len(arr))
+    slope = float(np.polyfit(t, arr, 1)[0]) if len(arr) > 1 else 0.0
+
+    # Spike count
+    diffs = np.abs(np.diff(arr))
+    spike_ratio = float(np.sum(diffs > 0.5)) / max(len(arr), 1)
+
+    # Coefficient of variation
+    cv = std_val / max(mean_val, 0.01)
+
+    # Decision logic
+    if slope > 0.003:
+        return "bearing_wear", min(0.7 + anomaly_score * 0.3, 0.95)
+    elif spike_ratio > 0.1:
+        return "wet_material", min(0.65 + spike_ratio * 2, 0.95)
+    elif mean_val > 5.5 and cv < 0.1:
+        return "calibration_needed", min(0.7 + (mean_val - 5.0) * 0.05, 0.95)
+    else:
+        # Unknown anomaly — report as generic
+        return "bearing_wear" if slope > 0.001 else "calibration_needed", 0.6

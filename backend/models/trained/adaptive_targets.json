@@ -1,0 +1,78 @@
+{
+  "baseline": {
+    "energy": {
+      "mean": 33.6665,
+      "median": 33.6,
+      "p25": 31.3,
+      "p75": 35.9,
+      "p90": 38.1,
+      "std": 3.331,
+      "min": 25.0,
+      "max": 44.3,
+      "n_samples": 2000
+    },
+    "quality": {
+      "mean": 91.0918,
+      "median": 91.3,
+      "p25": 89.0,
+      "p75": 93.3,
+      "p90": 94.9,
+      "std": 3.1021,
+      "min": 78.8,
+      "max": 99.9,
+      "n_samples": 2000
+    },
+    "yield": {
+      "mean": 92.3841,
+      "median": 92.5,
+      "p25": 90.7,
+      "p75": 94.2,
+      "p90": 95.5,
+      "std": 2.5084,
+      "min": 83.8,
+      "max": 99.4,
+      "n_samples": 2000
+    },
+    "performance": {
+      "mean": 90.9415,
+      "median": 91.2,
+      "p25": 89.3,
+      "p75": 92.8,
+      "p90": 94.3,
+      "std": 2.7514,
+      "min": 80.5,
+      "max": 98.4,
+      "n_samples": 2000
+    },
+    "co2": {
+      "mean": 27.6065,
+      "median": 27.552,
+      "p75": 29.438,
+      "annual_estimate_kg": 30229.11
+    }
+  },
+  "rolling_history": [
+    {
+      "energy_kwh": 32.5,
+      "co2_kg": 26.65,
+      "quality": 92.0,
+      "yield": 94.5,
+      "performance": 87.5,
+      "batch_number": 51,
+      "timestamp": "2026-03-06T00:55:41.745038",
+      "budget_status": "caution"
+    },
+    {
+      "energy_kwh": 32.5,
+      "co2_kg": 26.65,
+      "quality": 92.0,
+      "yield": 94.5,
+      "performance": 87.5,
+      "batch_number": 51,
+      "timestamp": "2026-03-06T01:01:31.016800",
+      "budget_status": "caution"
+    }
+  ],
+  "config_overrides": {},
+  "last_updated": "2026-03-06T01:01:31.017330"
+}

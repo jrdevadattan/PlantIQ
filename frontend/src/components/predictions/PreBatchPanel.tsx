@@ -14,9 +14,12 @@ import {
   TbTrendingUp,
   TbBolt,
   TbGauge,
+  TbLeaf,
+  TbAlertTriangle,
 } from "react-icons/tb";
 import { cn } from "@/lib/utils";
-import type { PredictionResult } from "@/lib/mockData";
+import { predictBatch } from "@/lib/api";
+import type { BatchPredictionResponse, BatchPredictionParams } from "@/lib/api";
 
 interface FormField {
   name: string;
@@ -42,10 +45,10 @@ const materialTypes = [
 ];
 
 const resultCards = [
-  { key: "qualityScore", label: "Quality Score", icon: TbChartBar, color: "teal", unit: "%" },
-  { key: "yieldPct", label: "Yield", icon: TbTrendingUp, color: "emerald", unit: "%" },
-  { key: "performancePct", label: "Performance", icon: TbGauge, color: "indigo", unit: "%" },
-  { key: "energyKwh", label: "Energy", icon: TbBolt, color: "amber", unit: "kWh" },
+  { key: "quality_score", label: "Quality Score", icon: TbChartBar, color: "teal", unit: "%" },
+  { key: "yield_pct", label: "Yield", icon: TbTrendingUp, color: "emerald", unit: "%" },
+  { key: "performance_pct", label: "Performance", icon: TbGauge, color: "indigo", unit: "%" },
+  { key: "energy_kwh", label: "Energy", icon: TbBolt, color: "amber", unit: "kWh" },
 ];
 
 const colorMap: Record<string, string> = {
@@ -55,48 +58,54 @@ const colorMap: Record<string, string> = {
   amber: "bg-amber-50 text-amber-600 border-amber-100",
 };
 
-export function PreBatchPanel() {
+const carbonStatusStyles: Record<string, string> = {
+  ON_TRACK: "bg-emerald-50 text-emerald-700 border-emerald-100",
+  WARNING: "bg-amber-50 text-amber-700 border-amber-100",
+  OVER_BUDGET: "bg-red-50 text-red-700 border-red-100",
+};
+
+interface PreBatchPanelProps {
+  onPrediction?: (batchId: string, params: BatchPredictionParams) => void;
+}
+
+export function PreBatchPanel({ onPrediction }: PreBatchPanelProps) {
   const [formData, setFormData] = useState({
     temperature: 183,
     conveyorSpeed: 76,
     holdTime: 18,
     batchSize: 500,
-    materialType: 1,
-    hourOfDay: new Date().getHours(),
+    materialType: 0,
+    hourOfDay: Math.max(6, Math.min(21, new Date().getHours())),
+    operatorExp: 1,
   });
-  const [prediction, setPrediction] = useState<PredictionResult | null>(null);
+  const [result, setResult] = useState<BatchPredictionResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setLoading(true);
-    // Simulate API call  
-    setTimeout(() => {
-      // Deterministic mock prediction based on inputs
-      const t = formData.temperature;
-      const s = formData.conveyorSpeed;
-      const h = formData.holdTime;
-      const b = formData.batchSize;
-      const m = formData.materialType;
+    setError(null);
 
-      const energy = 0.3 * t + 0.2 * s + 0.5 * h + 0.01 * b + 3 * (m === 2 ? 1 : 0) - 15;
-      const yld = Math.min(100, Math.max(70, 98 - 0.08 * Math.pow(t - 183, 2) - 0.04 * Math.pow(s - 75, 2)));
-      const quality = Math.min(100, Math.max(60, 92 + 0.3 * (t - 175) - 0.02 * Math.pow(h, 2) + 5));
-      const perf = Math.min(100, Math.max(60, 95 - 0.5 * Math.pow(formData.hourOfDay - 10, 2) / 10));
+    const apiParams: BatchPredictionParams = {
+      temperature: formData.temperature,
+      conveyor_speed: formData.conveyorSpeed,
+      hold_time: formData.holdTime,
+      batch_size: formData.batchSize,
+      material_type: formData.materialType,
+      hour_of_day: formData.hourOfDay,
+      operator_exp: formData.operatorExp,
+    };
 
-      setPrediction({
-        qualityScore: Number(quality.toFixed(1)),
-        yieldPct: Number(yld.toFixed(1)),
-        performancePct: Number(perf.toFixed(1)),
-        energyKwh: Number(energy.toFixed(1)),
-        confidence: {
-          quality: [quality - 3, quality + 3],
-          yield: [yld - 2.5, yld + 2.5],
-          performance: [perf - 4, perf + 4],
-          energy: [energy - 3.5, energy + 3.5],
-        },
-      });
+    try {
+      const response = await predictBatch(apiParams);
+      setResult(response);
+      onPrediction?.(response.batch_id, apiParams);
+    } catch (err: any) {
+      console.error("[PreBatchPanel]", err);
+      setError(err.message ?? "Prediction failed. Is the backend running?");
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   const updateField = (name: string, value: number) => {
@@ -190,8 +199,8 @@ export function PreBatchPanel() {
           <div className="flex items-center gap-3">
             <input
               type="range"
-              min={0}
-              max={23}
+              min={6}
+              max={21}
               value={formData.hourOfDay}
               onChange={(e) => updateField("hourOfDay", Number(e.target.value))}
               className="flex-1 h-1.5 bg-slate-200 rounded-full appearance-none cursor-pointer accent-teal-500"
@@ -203,6 +212,14 @@ export function PreBatchPanel() {
             </div>
           </div>
         </div>
+
+        {/* Error state */}
+        {error && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-100 rounded-lg flex items-start gap-2">
+            <TbAlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+            <p className="text-[11px] text-red-700 leading-relaxed">{error}</p>
+          </div>
+        )}
 
         {/* Submit */}
         <button
@@ -230,7 +247,7 @@ export function PreBatchPanel() {
       </div>
 
       {/* Prediction Results */}
-      {prediction && (
+      {result && (
         <div className="bg-white rounded-xl border border-slate-100 p-5 animate-count">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
@@ -239,7 +256,7 @@ export function PreBatchPanel() {
             <div>
               <h3 className="text-sm font-bold text-slate-800">Prediction Results</h3>
               <p className="text-[11px] text-slate-400">
-                Multi-target prediction with confidence intervals
+                Batch {result.batch_id} — Multi-target prediction with confidence intervals
               </p>
             </div>
           </div>
@@ -247,9 +264,8 @@ export function PreBatchPanel() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {resultCards.map((card) => {
               const Icon = card.icon;
-              const val = prediction[card.key as keyof PredictionResult] as number;
-              const confKey = card.key === "qualityScore" ? "quality" : card.key === "yieldPct" ? "yield" : card.key === "performancePct" ? "performance" : "energy";
-              const conf = prediction.confidence[confKey as keyof typeof prediction.confidence];
+              const val = result.predictions[card.key as keyof typeof result.predictions] as number;
+              const ci = result.confidence_intervals[card.key];
               return (
                 <div
                   key={card.key}
@@ -262,17 +278,41 @@ export function PreBatchPanel() {
                     </span>
                   </div>
                   <p className="text-2xl font-bold text-slate-800">
-                    {val}
+                    {typeof val === "number" ? val.toFixed(1) : val}
                     <span className="text-xs font-semibold text-slate-400 ml-1">
                       {card.unit}
                     </span>
                   </p>
-                  <p className="text-[10px] text-slate-400 mt-1">
-                    CI: {conf[0].toFixed(1)} — {conf[1].toFixed(1)}
-                  </p>
+                  {ci && (
+                    <p className="text-[10px] text-slate-400 mt-1">
+                      CI: {ci.lower.toFixed(1)} — {ci.upper.toFixed(1)}
+                    </p>
+                  )}
                 </div>
               );
             })}
+          </div>
+
+          {/* Carbon Budget */}
+          <div className={cn(
+            "mt-4 p-4 rounded-lg border flex items-center justify-between",
+            carbonStatusStyles[result.carbon_budget.status] ?? "bg-slate-50 text-slate-700 border-slate-100"
+          )}>
+            <div className="flex items-center gap-3">
+              <TbLeaf className="w-5 h-5" />
+              <div>
+                <p className="text-xs font-bold">Carbon Budget: {result.carbon_budget.status.replace("_", " ")}</p>
+                <p className="text-[10px] opacity-80">
+                  {result.carbon_budget.predicted_usage_kg} kg CO₂ of {result.carbon_budget.batch_budget_kg} kg budget
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-lg font-bold font-mono">
+                {result.carbon_budget.headroom_kg > 0 ? "+" : ""}{result.carbon_budget.headroom_kg}
+              </p>
+              <p className="text-[10px] opacity-70">kg headroom</p>
+            </div>
           </div>
         </div>
       )}

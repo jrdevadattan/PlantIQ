@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import {
   LineChart,
   Line,
@@ -19,9 +19,12 @@ import {
   TbTool,
   TbDroplet,
   TbCircleCheck,
+  TbLoader2,
 } from "react-icons/tb";
 import { cn } from "@/lib/utils";
 import { generatePowerCurve } from "@/lib/mockData";
+import { detectAnomaly } from "@/lib/api";
+import type { AnomalyDetectResponse } from "@/lib/api";
 
 type FaultType = "normal" | "bearing_wear" | "wet_material";
 
@@ -32,7 +35,6 @@ const faultProfiles = [
     icon: TbCircleCheck,
     color: "emerald",
     description: "Healthy power curve with minimal noise",
-    action: "No action needed",
   },
   {
     id: "bearing_wear" as FaultType,
@@ -40,7 +42,6 @@ const faultProfiles = [
     icon: TbTool,
     color: "amber",
     description: "Gradual baseline rise — motor working harder over time",
-    action: "Schedule maintenance in 5 days",
   },
   {
     id: "wet_material" as FaultType,
@@ -48,41 +49,40 @@ const faultProfiles = [
     icon: TbDroplet,
     color: "red",
     description: "Irregular high-frequency spikes from moisture content",
-    action: "Extend drying phase by 3-4 minutes",
   },
 ];
 
-const colorVariants: Record<string, { bg: string; text: string; border: string; dot: string }> = {
-  emerald: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-100", dot: "active" },
-  amber: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-100", dot: "warning" },
-  red: { bg: "bg-red-50", text: "text-red-700", border: "border-red-100", dot: "danger" },
+/* ── Severity → color mapping ─────────────────────────────── */
+const severityColors: Record<string, { bg: string; text: string; border: string; dot: string }> = {
+  NORMAL: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-100", dot: "active" },
+  WATCH: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-100", dot: "warning" },
+  WARNING: { bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-100", dot: "warning" },
+  CRITICAL: { bg: "bg-red-50", text: "text-red-700", border: "border-red-100", dot: "danger" },
+};
+
+const selectorColors: Record<string, { bg: string; text: string; border: string }> = {
+  emerald: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-100" },
+  amber: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-100" },
+  red: { bg: "bg-red-50", text: "text-red-700", border: "border-red-100" },
 };
 
 export function AnomalyDetector() {
   const [selectedFault, setSelectedFault] = useState<FaultType>("normal");
+  const [apiResult, setApiResult] = useState<AnomalyDetectResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Generate power curve and reconstruction
-  const { combined, residuals, anomalyScore, diagnosis } = useMemo(() => {
+  // Generate power curve for visualization (client-side)
+  const { combined, residuals, rawReadings } = useMemo(() => {
     const raw = generatePowerCurve(selectedFault, 600);
     const normalBaseline = generatePowerCurve("normal", 600);
 
-    // Simulate autoencoder: reconstruction ≈ normal baseline (what autoencoder learned)
-    const recon = normalBaseline.map((v, i) => v + (Math.random() - 0.5) * 0.1);
+    // Visual reconstruction approximation (for chart only — scoring done server-side)
+    const recon = normalBaseline.map((v) => v + (Math.random() - 0.5) * 0.1);
 
-    // Residuals = |original - reconstructed|
+    // Visual residuals for chart
     const res = raw.map((v, i) => Math.abs(v - recon[i]));
 
-    // Mean anomaly score
-    const meanResidual = res.reduce((a, b) => a + b, 0) / res.length;
-    const score = Number(Math.min(meanResidual / 2, 1).toFixed(2));
-
-    const diag = selectedFault === "normal"
-      ? "No anomaly detected"
-      : selectedFault === "bearing_wear"
-      ? "Gradual power drift detected — consistent with mechanical wear"
-      : "Irregular power spikes detected — consistent with high raw material moisture";
-
-    // Combine original + reconstructed into one array for LineChart
     const combined = raw.map((v, i) => ({
       t: i,
       original: v,
@@ -92,14 +92,40 @@ export function AnomalyDetector() {
     return {
       combined,
       residuals: res.map((v, i) => ({ t: i, error: Number(v.toFixed(3)) })),
-      anomalyScore: score,
-      diagnosis: diag,
+      rawReadings: raw,
     };
   }, [selectedFault]);
 
-  const faultProfile = faultProfiles.find(f => f.id === selectedFault)!;
-  const colors = colorVariants[faultProfile.color];
-  const isAnomaly = anomalyScore > 0.3;
+  // Send power readings to backend for real LSTM analysis
+  const analyze = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const batchId = `anomaly-${selectedFault}-${Date.now()}`;
+      const response = await detectAnomaly(batchId, rawReadings, rawReadings.length);
+      setApiResult(response);
+    } catch (err: any) {
+      console.error("[AnomalyDetector]", err);
+      setError(err.message ?? "Anomaly detection failed. Is the backend running?");
+    } finally {
+      setLoading(false);
+    }
+  }, [rawReadings, selectedFault]);
+
+  // Auto-analyze when fault selection changes
+  useEffect(() => {
+    analyze();
+  }, [analyze]);
+
+  // Derive display values from API result or fallback
+  const anomalyScore = apiResult?.anomaly_score ?? 0;
+  const isAnomaly = apiResult?.is_anomaly ?? false;
+  const severity = apiResult?.severity ?? "NORMAL";
+  const diagnosis = apiResult?.diagnosis;
+  const threshold = apiResult?.threshold ?? 0.30;
+
+  const colors = severityColors[severity] ?? severityColors.NORMAL;
 
   return (
     <div className="space-y-5">
@@ -112,7 +138,7 @@ export function AnomalyDetector() {
           <div>
             <h3 className="text-sm font-bold text-slate-800">Power Curve Analysis</h3>
             <p className="text-[11px] text-slate-400">
-              Select a scenario to see how the LSTM Autoencoder detects anomalies
+              Select a scenario — power curve is sent to the LSTM Autoencoder for real analysis
             </p>
           </div>
         </div>
@@ -120,7 +146,7 @@ export function AnomalyDetector() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {faultProfiles.map((fp) => {
             const Icon = fp.icon;
-            const cv = colorVariants[fp.color];
+            const cv = selectorColors[fp.color];
             const isSelected = selectedFault === fp.id;
             return (
               <button
@@ -146,45 +172,101 @@ export function AnomalyDetector() {
         </div>
       </div>
 
-      {/* Anomaly Score + Diagnosis */}
-      <div className={cn("rounded-xl border p-5", colors.bg, colors.border)}>
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <span className={`status-dot ${colors.dot}`} />
-            <div>
-              <h3 className={cn("text-sm font-bold", colors.text)}>
-                {isAnomaly ? "Anomaly Detected" : "No Anomaly"}
-              </h3>
-              <p className="text-[11px] text-slate-500 mt-0.5">{diagnosis}</p>
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wide">Score</p>
-            <p className={cn("text-2xl font-bold font-mono", colors.text)}>
-              {anomalyScore}
-            </p>
-            <p className="text-[10px] text-slate-400">Threshold: 0.30</p>
-          </div>
+      {/* Loading State */}
+      {loading && (
+        <div className="bg-white rounded-xl border border-slate-100 p-5 flex items-center justify-center gap-3">
+          <TbLoader2 className="w-5 h-5 text-teal-500 animate-spin" />
+          <p className="text-sm text-slate-500">Analyzing power curve with LSTM Autoencoder…</p>
         </div>
+      )}
 
-        {isAnomaly && (
-          <div className="mt-4 p-3 bg-white/60 rounded-lg border border-white/80">
-            <div className="flex items-center gap-2 mb-1">
-              <TbTool className="w-4 h-4 text-slate-600" />
-              <span className="text-xs font-bold text-slate-700">Recommended Action</span>
+      {/* Error State */}
+      {error && !loading && (
+        <div className="bg-red-50 rounded-xl border border-red-100 p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <TbAlertTriangle className="w-4 h-4 text-red-500" />
+            <span className="text-xs font-bold text-red-700">Analysis Failed</span>
+          </div>
+          <p className="text-[11px] text-red-600">{error}</p>
+        </div>
+      )}
+
+      {/* Anomaly Score + Diagnosis (from real API) */}
+      {!loading && apiResult && (
+        <div className={cn("rounded-xl border p-5", colors.bg, colors.border)}>
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <span className={`status-dot ${colors.dot}`} />
+              <div>
+                <h3 className={cn("text-sm font-bold", colors.text)}>
+                  {isAnomaly ? "Anomaly Detected" : "No Anomaly"}
+                </h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  {diagnosis?.human_readable ?? "No diagnosis available"}
+                </p>
+              </div>
             </div>
-            <p className="text-[11px] text-slate-600">{faultProfile.action}</p>
-            <div className="flex gap-2 mt-3">
-              <button className="px-3 py-1.5 bg-teal-600 text-white text-[11px] font-bold rounded-lg hover:bg-teal-700 transition-colors">
-                Approve Action
-              </button>
-              <button className="px-3 py-1.5 bg-white text-slate-500 text-[11px] font-bold rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors">
-                Dismiss
-              </button>
+            <div className="text-right">
+              <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wide">Score</p>
+              <p className={cn("text-2xl font-bold font-mono", colors.text)}>
+                {anomalyScore.toFixed(2)}
+              </p>
+              <p className="text-[10px] text-slate-400">Threshold: {threshold.toFixed(2)}</p>
             </div>
           </div>
-        )}
-      </div>
+
+          {/* Severity badge */}
+          <div className="mt-3 flex items-center gap-3">
+            <span className={cn(
+              "px-2 py-0.5 text-[10px] font-bold rounded-full border",
+              colors.bg, colors.text, colors.border
+            )}>
+              {severity}
+            </span>
+            {diagnosis && (
+              <span className="text-[10px] text-slate-400">
+                Fault: <span className="font-bold text-slate-600">{diagnosis.fault_type}</span>
+                {" · "}Confidence: <span className="font-bold text-slate-600">{(diagnosis.confidence * 100).toFixed(0)}%</span>
+              </span>
+            )}
+          </div>
+
+          {isAnomaly && diagnosis && (
+            <div className="mt-4 p-3 bg-white/60 rounded-lg border border-white/80">
+              <div className="flex items-center gap-2 mb-1">
+                <TbTool className="w-4 h-4 text-slate-600" />
+                <span className="text-xs font-bold text-slate-700">Recommended Action</span>
+              </div>
+              <p className="text-[11px] text-slate-600">{diagnosis.recommended_action}</p>
+
+              {/* Impact estimates */}
+              {(diagnosis.estimated_energy_impact_kwh || diagnosis.estimated_quality_impact_pct) && (
+                <div className="flex gap-4 mt-2">
+                  {diagnosis.estimated_energy_impact_kwh !== undefined && diagnosis.estimated_energy_impact_kwh !== 0 && (
+                    <span className="text-[10px] text-slate-400">
+                      Energy impact: <span className="font-bold text-amber-600">+{diagnosis.estimated_energy_impact_kwh} kWh</span>
+                    </span>
+                  )}
+                  {diagnosis.estimated_quality_impact_pct !== undefined && diagnosis.estimated_quality_impact_pct !== 0 && (
+                    <span className="text-[10px] text-slate-400">
+                      Quality impact: <span className="font-bold text-red-600">{diagnosis.estimated_quality_impact_pct}%</span>
+                    </span>
+                  )}
+                </div>
+              )}
+
+              <div className="flex gap-2 mt-3">
+                <button className="px-3 py-1.5 bg-teal-600 text-white text-[11px] font-bold rounded-lg hover:bg-teal-700 transition-colors">
+                  Approve Action
+                </button>
+                <button className="px-3 py-1.5 bg-white text-slate-500 text-[11px] font-bold rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors">
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">

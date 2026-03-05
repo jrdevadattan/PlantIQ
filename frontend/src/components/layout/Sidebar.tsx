@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import {
   TbLayoutDashboard,
   TbTargetArrow,
@@ -15,6 +16,8 @@ import {
   TbBolt,
 } from "react-icons/tb";
 import { cn } from "@/lib/utils";
+import { fetchHealth } from "@/lib/api";
+import type { HealthResponse } from "@/lib/api";
 
 const menuItems = [
   { name: "Dashboard", icon: TbLayoutDashboard, href: "/" },
@@ -32,6 +35,22 @@ const footerItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const [health, setHealth] = useState<HealthResponse | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    const poll = async () => {
+      try {
+        const data = await fetchHealth();
+        if (mounted) setHealth(data);
+      } catch {
+        if (mounted) setHealth(null);
+      }
+    };
+    poll();
+    const interval = setInterval(poll, 15000);
+    return () => { mounted = false; clearInterval(interval); };
+  }, []);
 
   return (
     <div className="w-64 bg-white border-r border-slate-200 flex flex-col h-screen overflow-hidden">
@@ -112,11 +131,15 @@ export function Sidebar() {
       {/* System status */}
       <div className="mx-3 mb-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
         <div className="flex items-center gap-2 mb-1">
-          <span className="status-dot active" />
-          <span className="text-[11px] font-bold text-slate-600">System Online</span>
+          <span className={cn("status-dot", health?.models_loaded ? "active" : "danger")} />
+          <span className="text-[11px] font-bold text-slate-600">
+            {health ? "System Online" : "Backend Offline"}
+          </span>
         </div>
         <p className="text-[10px] text-slate-400 leading-relaxed">
-          All models loaded. Last retrain: 2h ago
+          {health
+            ? `All models loaded · v${health.version}`
+            : "Connect backend at :8000"}
         </p>
       </div>
     </div>
