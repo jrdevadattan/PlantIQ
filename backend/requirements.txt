@@ -1,0 +1,28 @@
+# PlantIQ Backend — Python Dependencies
+# ========================================
+# Locked versions per README spec. DO NOT change unless explicitly asked.
+
+# --- Core Data ---
+numpy==1.26.4
+pandas==2.2.2
+
+# --- ML & AI ---
+xgboost==2.0.3
+scikit-learn==1.5.0
+torch==2.3.0
+shap==0.45.0
+joblib==1.4.2
+
+# --- API ---
+fastapi==0.111.0
+uvicorn==0.30.1
+pydantic==2.7.1
+websockets==12.0
+python-multipart==0.0.9
+
+# --- Database ---
+sqlalchemy==2.0.30
+
+# --- Visualization (optional, for notebooks) ---
+matplotlib==3.9.0
+seaborn==0.13.2

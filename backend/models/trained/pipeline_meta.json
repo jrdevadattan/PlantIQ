@@ -1,0 +1,27 @@
+{
+  "feature_cols": [
+    "temperature",
+    "conveyor_speed",
+    "hold_time",
+    "batch_size",
+    "hour_of_day",
+    "operator_exp",
+    "material_type",
+    "temp_speed_product",
+    "temp_deviation",
+    "speed_deviation",
+    "hold_per_kg",
+    "shift",
+    "hours_into_shift"
+  ],
+  "target_cols": [
+    "quality_score",
+    "yield_pct",
+    "performance_pct",
+    "energy_kwh"
+  ],
+  "imputer_neighbors": 5,
+  "iqr_multiplier": 1.5,
+  "test_size": 0.2,
+  "random_state": 42
+}
