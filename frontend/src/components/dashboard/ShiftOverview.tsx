@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
-import { shiftPerformance } from "@/lib/mockData";
+import React, { useState, useEffect } from "react";
+import { shiftPerformance as mockShifts } from "@/lib/mockData";
+import { fetchShiftPerformance, type ShiftPerformanceData } from "@/lib/api";
 import { TbSunHigh, TbSunset2, TbMoon } from "react-icons/tb";
 import { cn } from "@/lib/utils";
 
@@ -12,14 +13,47 @@ const shiftColors = [
   "bg-indigo-50 text-indigo-600 border-indigo-100",
 ];
 
+interface ShiftDisplay {
+  shift: string;
+  quality: number;
+  yield: number;
+  energy: number;
+  batches: number;
+}
+
 export function ShiftOverview() {
+  const [shifts, setShifts] = useState<ShiftDisplay[]>(mockShifts);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const data = await fetchShiftPerformance();
+        if (!cancelled && data && data.length > 0) {
+          const mapped: ShiftDisplay[] = data.map((s: ShiftPerformanceData) => ({
+            shift: s.shift,
+            quality: s.quality,
+            yield: s.yield_pct,
+            energy: s.energy,
+            batches: s.batches,
+          }));
+          setShifts(mapped);
+        }
+      } catch (err) {
+        console.error("[ShiftOverview] API unavailable, using mock:", err);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
   return (
     <div className="bg-white rounded-xl border border-slate-100 p-5">
       <h3 className="text-sm font-bold text-slate-800 mb-1">Shift Performance</h3>
       <p className="text-[11px] text-slate-400 mb-4">Comparison across shifts today</p>
 
       <div className="space-y-3">
-        {shiftPerformance.map((shift, i) => {
+        {shifts.map((shift, i) => {
           const Icon = shiftIcons[i];
           return (
             <div

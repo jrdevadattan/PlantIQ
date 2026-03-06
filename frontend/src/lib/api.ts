@@ -212,3 +212,87 @@ export async function detectAnomaly(
 export async function fetchModelFeatures(): Promise<ModelFeaturesResponse> {
   return apiFetch<ModelFeaturesResponse>("/model/features");
 }
+
+// ── Dashboard ───────────────────────────────────────────────
+
+export interface DashboardSummary {
+  total_batches: number;
+  running_count: number;
+  avg_energy: number;
+  avg_quality: number;
+  avg_yield: number;
+  avg_performance: number;
+  anomaly_count: number;
+  resolved_count: number;
+  model_accuracy: number;
+  mape_pct: number;
+  energy_trend: string;
+  energy_trend_value: string;
+  quality_trend: string;
+  quality_trend_value: string;
+  yield_trend: string;
+  yield_trend_value: string;
+}
+
+export interface DailyEnergyItem {
+  day: string;
+  kwh: number;
+  date: string;
+  batch_count: number;
+}
+
+export interface DashboardBatch {
+  id: string;
+  timestamp: string;
+  temperature: number;
+  conveyorSpeed: number;
+  holdTime: number;
+  batchSize: number;
+  materialType: number;
+  hourOfDay: number;
+  qualityScore: number;
+  yieldPct: number;
+  performancePct: number;
+  energyKwh: number;
+  status: "completed" | "running" | "scheduled" | "alert";
+  anomalyScore: number;
+}
+
+export interface ShiftPerformanceData {
+  shift: string;
+  quality: number;
+  yield_pct: number;
+  energy: number;
+  batches: number;
+}
+
+export interface LatestBatch {
+  batch_id: string;
+  quality_score: number;
+  yield_pct: number;
+  performance_pct: number;
+  energy_kwh: number;
+  progress_pct: number;
+  elapsed_display: string;
+  total_display: string;
+}
+
+export async function fetchDashboardSummary(): Promise<DashboardSummary> {
+  return apiFetch<DashboardSummary>("/dashboard/summary");
+}
+
+export async function fetchEnergyDaily(days = 7): Promise<DailyEnergyItem[]> {
+  return apiFetch<DailyEnergyItem[]>(`/dashboard/energy-daily?days=${days}`);
+}
+
+export async function fetchRecentBatches(limit = 6): Promise<DashboardBatch[]> {
+  return apiFetch<DashboardBatch[]>(`/dashboard/recent-batches?limit=${limit}`);
+}
+
+export async function fetchShiftPerformance(): Promise<ShiftPerformanceData[]> {
+  return apiFetch<ShiftPerformanceData[]>("/dashboard/shift-performance");
+}
+
+export async function fetchLatestBatch(): Promise<LatestBatch> {
+  return apiFetch<LatestBatch>("/dashboard/latest-batch");
+}

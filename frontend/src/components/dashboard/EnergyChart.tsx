@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -10,7 +10,8 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import { dailyEnergy } from "@/lib/mockData";
+import { fetchEnergyDaily, type DailyEnergyItem } from "@/lib/api";
+import { dailyEnergy as mockDailyEnergy } from "@/lib/mockData";
 import { TbBolt, TbArrowUpRight } from "react-icons/tb";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -28,8 +29,33 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function EnergyChart() {
-  const totalKwh = dailyEnergy.reduce((sum, d) => sum + d.kwh, 0);
-  const avgKwh = Math.round(totalKwh / dailyEnergy.length);
+  const [chartData, setChartData] = useState<{ day: string; kwh: number }[]>(mockDailyEnergy);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const data = await fetchEnergyDaily(7);
+        if (!cancelled && data && data.length > 0) {
+          setChartData(data.map((d: DailyEnergyItem) => ({
+            day: d.day,
+            kwh: d.kwh,
+          })));
+        }
+      } catch (err) {
+        console.error("[EnergyChart] API unavailable, using mock:", err);
+        // keep mockDailyEnergy as fallback
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
+  const totalKwh = chartData.reduce((sum, d) => sum + d.kwh, 0);
+  const avgKwh = chartData.length > 0 ? Math.round(totalKwh / chartData.length) : 0;
 
   return (
     <div className="bg-white rounded-xl border border-slate-100 p-5">
@@ -53,7 +79,7 @@ export function EnergyChart() {
 
       <div className="h-48">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={dailyEnergy} barSize={28}>
+          <BarChart data={chartData} barSize={28}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
             <XAxis
               dataKey="day"

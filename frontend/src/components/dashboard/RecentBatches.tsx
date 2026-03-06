@@ -1,7 +1,9 @@
 "use client";
 
-import React from "react";
-import { recentBatches } from "@/lib/mockData";
+import React, { useState, useEffect } from "react";
+import { recentBatches as mockBatches } from "@/lib/mockData";
+import type { BatchRecord } from "@/lib/mockData";
+import { fetchRecentBatches, type DashboardBatch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import {
   TbCircleCheck,
@@ -37,7 +39,42 @@ const statusConfig = {
 };
 
 export function RecentBatches() {
-  const displayBatches = recentBatches.slice(0, 6);
+  const [batches, setBatches] = useState<BatchRecord[]>(mockBatches.slice(0, 6));
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const data = await fetchRecentBatches(6);
+        if (!cancelled && data && data.length > 0) {
+          // Map DashboardBatch → BatchRecord shape
+          const mapped: BatchRecord[] = data.map((b: DashboardBatch) => ({
+            id: b.id,
+            timestamp: b.timestamp,
+            temperature: b.temperature,
+            conveyorSpeed: b.conveyorSpeed,
+            holdTime: b.holdTime,
+            batchSize: b.batchSize,
+            materialType: b.materialType,
+            hourOfDay: b.hourOfDay,
+            qualityScore: b.qualityScore,
+            yieldPct: b.yieldPct,
+            performancePct: b.performancePct,
+            energyKwh: b.energyKwh,
+            status: b.status as BatchRecord["status"],
+            anomalyScore: b.anomalyScore,
+          }));
+          setBatches(mapped);
+        }
+      } catch (err) {
+        console.error("[RecentBatches] API unavailable, using mock:", err);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
+  const displayBatches = batches;
 
   return (
     <div className="bg-white rounded-xl border border-slate-100 overflow-hidden">
