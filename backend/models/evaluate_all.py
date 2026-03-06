@@ -62,9 +62,30 @@ def main():
 
     print("╠═══════════════════════╬══════════╬═══════════════╣")
 
-    # Placeholder for future models (LSTM, Fault Classifier)
-    print("║ LSTM Anomaly F1       ║  -.---   ║ ⏳ PENDING    ║")
-    print("║ Fault Classifier Acc  ║  --.-%   ║ ⏳ PENDING    ║")
+    # LSTM Autoencoder status
+    lstm_meta_path = os.path.join(ARTIFACT_DIR, "lstm_autoencoder_meta.json")
+    if os.path.exists(lstm_meta_path):
+        print("║ LSTM Anomaly          ║  TRAINED ║ ✅ READY      ║")
+    else:
+        print("║ LSTM Anomaly F1       ║  -.---   ║ ⏳ PENDING    ║")
+
+    # Fault Classifier status
+    fc_meta_path = os.path.join(ARTIFACT_DIR, "fault_classifier_meta.json")
+    if os.path.exists(fc_meta_path):
+        with open(fc_meta_path) as fc_f:
+            fc_meta = json.load(fc_f)
+        fc_acc = fc_meta.get("test_accuracy_pct", 0)
+        fc_status = "✅ PASS" if fc_acc >= 85 else "❌ FAIL"
+        print(f"║ Fault Classifier Acc  ║  {fc_acc:5.1f}%  ║ {fc_status:13s} ║")
+    else:
+        print("║ Fault Classifier Acc  ║  --.-%   ║ ⏳ PENDING    ║")
+
+    # Sliding Window Forecaster status
+    sw_module = os.path.join(BACKEND_DIR, "models", "sliding_window.py")
+    if os.path.exists(sw_module):
+        print("║ Sliding Window        ║  ACTIVE  ║ ✅ READY      ║")
+    else:
+        print("║ Sliding Window        ║  ------  ║ ⏳ PENDING    ║")
 
     print("╚═══════════════════════╩══════════╩═══════════════╝")
 

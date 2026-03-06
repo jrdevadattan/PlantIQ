@@ -42,6 +42,8 @@ predictor = None          # MultiTargetPredictor
 shap_explainer = None     # ShapExplainer
 english_converter = None  # PlainEnglishConverter
 lstm_model = None         # LSTM Autoencoder artifacts dict
+fault_classifier = None   # FaultClassifier (RandomForest)
+sliding_window = None     # SlidingWindowForecaster
 golden_manager = None     # GoldenSignatureManager
 target_engine = None      # AdaptiveTargetEngine
 
@@ -54,7 +56,7 @@ def _load_models():
     can import them with `from main import predictor`.
     """
     global predictor, shap_explainer, english_converter
-    global lstm_model, golden_manager, target_engine
+    global lstm_model, fault_classifier, sliding_window, golden_manager, target_engine
 
     # ── 1. Multi-Target XGBoost Predictor ────────────────────
     logger.info("Loading Multi-Target XGBoost predictor...")
@@ -109,7 +111,39 @@ def _load_models():
     else:
         logger.info("LSTM Autoencoder not trained yet — anomaly detection will use statistical method")
 
-    # ── 5. Golden Signature Manager ──────────────────────────
+    # ── 5. Fault Type Classifier (RandomForest) ─────────────
+    fault_classifier_path = os.path.join(BACKEND_DIR, "models", "trained", "fault_classifier.pkl")
+    if os.path.exists(fault_classifier_path):
+        logger.info("Loading Fault Type Classifier (RandomForest)...")
+        t0 = time.time()
+        try:
+            from models.fault_classifier import FaultClassifier
+            fault_classifier = FaultClassifier()
+            if fault_classifier.is_loaded:
+                logger.info(
+                    "Fault Classifier loaded in %.2fs — 4 classes, 9 features",
+                    time.time() - t0,
+                )
+            else:
+                logger.warning("Fault Classifier failed to load model file")
+                fault_classifier = None
+        except Exception as e:
+            logger.warning("Fault Classifier failed to load: %s", e)
+            fault_classifier = None
+    else:
+        logger.info("Fault Classifier not trained yet — using heuristic fallback")
+
+    # ── 6. Sliding Window Forecaster ─────────────────────────
+    logger.info("Initializing Sliding Window Forecaster...")
+    try:
+        from models.sliding_window import SlidingWindowForecaster
+        sliding_window = SlidingWindowForecaster()
+        logger.info("Sliding Window Forecaster ready")
+    except Exception as e:
+        logger.warning("Sliding Window Forecaster failed to initialize: %s", e)
+        sliding_window = None
+
+    # ── 7. Golden Signature Manager ──────────────────────────
     logger.info("Initializing Golden Signature Manager...")
     t0 = time.time()
     try:
@@ -124,7 +158,7 @@ def _load_models():
         logger.warning("Golden Signature Manager failed to initialize: %s", e)
         golden_manager = None
 
-    # ── 6. Adaptive Target Engine ────────────────────────────
+    # ── 8. Adaptive Target Engine ────────────────────────────
     logger.info("Initializing Adaptive Target Engine...")
     t0 = time.time()
     try:
@@ -194,6 +228,7 @@ from api.routes.features import router as features_router
 from api.routes.golden_signature import router as golden_sig_router
 from api.routes.targets import router as targets_router
 from api.routes.hackathon import router as hackathon_router
+from api.routes.dashboard import router as dashboard_router
 
 app.include_router(health_router)
 app.include_router(predict_router)
@@ -203,6 +238,7 @@ app.include_router(features_router)
 app.include_router(golden_sig_router)
 app.include_router(targets_router)
 app.include_router(hackathon_router)
+app.include_router(dashboard_router)
 
 
 # ── Root redirect to docs ────────────────────────────────────

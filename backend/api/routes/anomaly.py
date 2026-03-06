@@ -171,8 +171,8 @@ async def detect_anomaly(request: AnomalyDetectRequest) -> AnomalyDetectResponse
                 request.batch_id, anomaly_score, lstm_result["threshold"],
             )
 
-            # Use LSTM features for fault classification
-            fault_type, fault_confidence = _classify_fault_from_features(
+            # Use trained RandomForest classifier if available, else heuristic
+            fault_type, fault_confidence = _classify_fault_ml(
                 request.power_readings, anomaly_score
             )
         else:
@@ -212,13 +212,49 @@ async def detect_anomaly(request: AnomalyDetectRequest) -> AnomalyDetectResponse
     )
 
 
-def _classify_fault_from_features(
+def _classify_fault_ml(
     readings: list[float], anomaly_score: float
 ) -> tuple[str, float]:
-    """Classify fault type from power curve features when using LSTM scoring.
+    """Classify fault type using the trained RandomForest classifier (F2.2).
 
-    Uses the same statistical features as the heuristic method but applies
-    them as a lightweight classifier on top of the LSTM anomaly score.
+    Falls back to the rule-based heuristic if the ML classifier is
+    not loaded.
+
+    Returns
+    -------
+    tuple[str, float]
+        (fault_type, confidence)
+    """
+    # Low anomaly score → skip classification, always normal
+    if anomaly_score < 0.15:
+        return "normal", 0.95
+
+    # Try trained RandomForest first
+    try:
+        from main import fault_classifier
+        if fault_classifier is not None and fault_classifier.is_loaded:
+            curve_arr = np.array(readings, dtype=np.float64)
+            fault_type, confidence = fault_classifier.classify(curve_arr)
+            logger.info(
+                "RF fault classification: %s (confidence=%.4f)",
+                fault_type, confidence,
+            )
+            return fault_type, confidence
+    except ImportError:
+        pass
+    except Exception as e:
+        logger.warning("RF classifier failed, using heuristic: %s", e)
+
+    # Fallback: rule-based heuristic
+    return _classify_fault_heuristic(readings, anomaly_score)
+
+
+def _classify_fault_heuristic(
+    readings: list[float], anomaly_score: float
+) -> tuple[str, float]:
+    """Rule-based fault classification fallback.
+
+    Used when the trained RandomForest classifier is not available.
 
     Returns
     -------
@@ -252,5 +288,4 @@ def _classify_fault_from_features(
     elif mean_val > 5.5 and cv < 0.1:
         return "calibration_needed", min(0.7 + (mean_val - 5.0) * 0.05, 0.95)
     else:
-        # Unknown anomaly — report as generic
         return "bearing_wear" if slope > 0.001 else "calibration_needed", 0.6

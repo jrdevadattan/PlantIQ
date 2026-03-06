@@ -1,0 +1,9 @@
+STATUS:null
+STDOUT:
+  ▲ Next.js 14.2.4
+
+
+STDERR:
+
+ERROR:
+Error: spawnSync node ETIMEDOUT

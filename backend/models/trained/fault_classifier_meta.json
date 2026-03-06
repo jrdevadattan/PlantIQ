@@ -1,0 +1,90 @@
+{
+  "model_type": "RandomForestClassifier",
+  "n_estimators": 100,
+  "n_features": 9,
+  "feature_names": [
+    "mean",
+    "std",
+    "max",
+    "trend_slope",
+    "first_half_mean",
+    "second_half_mean",
+    "spike_count",
+    "area_under_curve",
+    "peak_time"
+  ],
+  "label_encoding": {
+    "normal": 0,
+    "bearing_wear": 1,
+    "wet_material": 2,
+    "calibration_needed": 3
+  },
+  "train_samples": 1600,
+  "test_samples": 400,
+  "train_accuracy_pct": 99.94,
+  "test_accuracy_pct": 100.0,
+  "per_class_metrics": {
+    "normal": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 304
+    },
+    "bearing_wear": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 42
+    },
+    "wet_material": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 36
+    },
+    "calibration_needed": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 18
+    }
+  },
+  "confusion_matrix": [
+    [
+      304,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      42,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      36,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      18
+    ]
+  ],
+  "feature_importance": {
+    "spike_count": 0.2674,
+    "trend_slope": 0.2112,
+    "max": 0.1329,
+    "std": 0.1141,
+    "second_half_mean": 0.1138,
+    "mean": 0.0824,
+    "area_under_curve": 0.0482,
+    "first_half_mean": 0.0215,
+    "peak_time": 0.0085
+  },
+  "training_time_sec": 0.27
+}

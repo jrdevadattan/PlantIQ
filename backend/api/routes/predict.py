@@ -133,6 +133,12 @@ async def predict_batch(request: BatchPredictionRequest) -> BatchPredictionRespo
 # ──────────────────────────────────────────────────────────────
 # POST /predict/realtime
 # ──────────────────────────────────────────────────────────────
+def _get_sliding_window():
+    """Lazy-import the global SlidingWindowForecaster from main."""
+    from main import sliding_window
+    return sliding_window
+
+
 @router.post("/realtime", response_model=RealtimePredictionResponse)
 async def predict_realtime(request: RealtimePredictionRequest) -> RealtimePredictionResponse:
     """Update prediction mid-batch using actual data collected so far.
@@ -140,8 +146,12 @@ async def predict_realtime(request: RealtimePredictionRequest) -> RealtimePredic
     Uses a sliding window blend: trusts model more at start,
     trusts actual consumption rate more as the batch progresses.
     Per README Component 4 — Sliding Window Real-Time Forecaster.
+
+    Delegates all blend/extrapolation/alert logic to
+    models.sliding_window.SlidingWindowForecaster.
     """
     predictor = _get_predictor()
+    forecaster = _get_sliding_window()
 
     original = request.original_params.model_dump()
     partial = request.partial_data
@@ -152,67 +162,80 @@ async def predict_realtime(request: RealtimePredictionRequest) -> RealtimePredic
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
 
-    # Compute progress
-    total_minutes = original["hold_time"]
-    progress_pct = round(min(partial.elapsed_minutes / total_minutes * 100, 100.0), 1)
+    # Delegate to SlidingWindowForecaster
+    if forecaster is not None:
+        result = forecaster.update(
+            model_predictions=model_preds,
+            original_params=original,
+            elapsed_minutes=partial.elapsed_minutes,
+            energy_so_far=partial.energy_so_far,
+            avg_power_kw=partial.avg_power_kw,
+            anomaly_events=partial.anomaly_events,
+        )
 
-    # Sliding window blend (per README spec)
+        updated = PredictionValues(
+            quality_score=result.adjusted_quality,
+            yield_pct=result.adjusted_yield,
+            performance_pct=result.adjusted_performance,
+            energy_kwh=result.adjusted_energy_kwh,
+            co2_kg=result.adjusted_co2_kg,
+        )
+
+        alert = None
+        if result.alert_severity is not None:
+            alert = AlertInfo(
+                severity=result.alert_severity,
+                message=result.alert_message or "",
+                recommended_action=result.recommended_action,
+                estimated_saving_kwh=result.estimated_saving_kwh,
+                quality_impact_pct=result.quality_impact_pct,
+            )
+
+        return RealtimePredictionResponse(
+            progress_pct=result.progress_pct,
+            updated_predictions=updated,
+            confidence=result.confidence_str,
+            alert=alert,
+        )
+
+    # ── Fallback: inline blend if forecaster not loaded ──────
+    total_minutes = original["hold_time"]
     progress_frac = partial.elapsed_minutes / total_minutes
+    progress_pct = round(min(progress_frac * 100, 100.0), 1)
     blend_weight = min(progress_frac * 2, 0.8)
 
-    # Extrapolate energy from actual consumption rate
     if partial.elapsed_minutes > 0:
-        rate_kwh_per_min = partial.energy_so_far / partial.elapsed_minutes
-        extrapolated_energy = rate_kwh_per_min * total_minutes
+        rate = partial.energy_so_far / partial.elapsed_minutes
+        extrap = rate * total_minutes
     else:
-        extrapolated_energy = model_preds["energy_kwh"]
+        extrap = model_preds["energy_kwh"]
 
-    # Blended energy prediction
-    adjusted_energy = (1 - blend_weight) * model_preds["energy_kwh"] + blend_weight * extrapolated_energy
-    adjusted_energy = round(adjusted_energy, 1)
-
-    # Adjust other targets proportionally based on energy deviation
-    energy_ratio = adjusted_energy / max(model_preds["energy_kwh"], 0.1)
-    # Higher energy → slightly lower quality/yield/performance
-    quality_adj = model_preds["quality_score"] * (2 - energy_ratio) if energy_ratio > 1 else model_preds["quality_score"]
-    yield_adj = model_preds["yield_pct"] * (2 - energy_ratio) if energy_ratio > 1 else model_preds["yield_pct"]
-    perf_adj = model_preds["performance_pct"] * (2 - energy_ratio) if energy_ratio > 1 else model_preds["performance_pct"]
-
-    co2_adjusted = round(adjusted_energy * CO2_FACTOR, 1)
+    adj_energy = round((1 - blend_weight) * model_preds["energy_kwh"] + blend_weight * extrap, 1)
+    e_ratio = adj_energy / max(model_preds["energy_kwh"], 0.1)
+    q = model_preds["quality_score"] * (2 - e_ratio) if e_ratio > 1 else model_preds["quality_score"]
+    y = model_preds["yield_pct"] * (2 - e_ratio) if e_ratio > 1 else model_preds["yield_pct"]
+    p = model_preds["performance_pct"] * (2 - e_ratio) if e_ratio > 1 else model_preds["performance_pct"]
 
     updated = PredictionValues(
-        quality_score=round(quality_adj, 1),
-        yield_pct=round(yield_adj, 1),
-        performance_pct=round(perf_adj, 1),
-        energy_kwh=adjusted_energy,
-        co2_kg=co2_adjusted,
+        quality_score=round(q, 1), yield_pct=round(y, 1), performance_pct=round(p, 1),
+        energy_kwh=adj_energy, co2_kg=round(adj_energy * CO2_FACTOR, 1),
     )
 
-    # Confidence shrinks as we get more data
-    ci_energy = abs(adjusted_energy - model_preds["energy_kwh"])
-    ci_str = f"±{max(ci_energy * 0.5, 0.5):.1f} kWh"
+    ci = abs(adj_energy - model_preds["energy_kwh"]) * 0.5
+    ci_str = f"±{max(ci, 0.5):.1f} kWh"
 
-    # Alert logic
+    dev = ((adj_energy - model_preds["energy_kwh"]) / max(model_preds["energy_kwh"], 0.1)) * 100
     alert = None
-    deviation_pct = ((adjusted_energy - model_preds["energy_kwh"]) / max(model_preds["energy_kwh"], 0.1)) * 100
-
-    if deviation_pct > 15:
+    if dev > 15:
         alert = AlertInfo(
-            severity="WARNING",
-            message=f"Energy trending {deviation_pct:.1f}% above target",
+            severity="WARNING", message=f"Energy trending {dev:.1f}% above target",
             recommended_action=f"Reduce conveyor speed from {original['conveyor_speed']:.0f}% to {max(original['conveyor_speed'] - 6, 60):.0f}%",
-            estimated_saving_kwh=round(adjusted_energy * 0.05, 1),
-            quality_impact_pct=-0.3,
+            estimated_saving_kwh=round(adj_energy * 0.05, 1), quality_impact_pct=-0.3,
         )
-    elif deviation_pct > 5:
-        alert = AlertInfo(
-            severity="WATCH",
-            message=f"Energy trending {deviation_pct:.1f}% above target",
-        )
+    elif dev > 5:
+        alert = AlertInfo(severity="WATCH", message=f"Energy trending {dev:.1f}% above target")
 
     return RealtimePredictionResponse(
-        progress_pct=progress_pct,
-        updated_predictions=updated,
-        confidence=ci_str,
-        alert=alert,
+        progress_pct=progress_pct, updated_predictions=updated,
+        confidence=ci_str, alert=alert,
     )
