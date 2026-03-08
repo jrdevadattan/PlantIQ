@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
-import type { BatchPredictionParams } from "@/lib/api";
+import type { BatchPredictionParams, BatchPredictionResponse, CostTranslation } from "@/lib/api";
 
 const PreBatchPanel = dynamic(
   () => import("@/components/predictions/PreBatchPanel").then(m => m.PreBatchPanel),
@@ -12,15 +12,34 @@ const ShapChart = dynamic(
   () => import("@/components/predictions/ShapChart").then(m => m.ShapChart),
   { ssr: false }
 );
+const RecommendationPanel = dynamic(
+  () => import("@/components/predictions/RecommendationPanel").then(m => m.RecommendationPanel),
+  { ssr: false }
+);
+const CostPanel = dynamic(
+  () => import("@/components/predictions/CostPanel").then(m => m.CostPanel),
+  { ssr: false }
+);
 
 export default function PredictionsPage() {
   const [lastBatchId, setLastBatchId] = useState<string | null>(null);
   const [lastParams, setLastParams] = useState<BatchPredictionParams | null>(null);
   const [liveMode, setLiveMode] = useState(false);
+  const [shapContributions, setShapContributions] = useState<Array<{ feature: string; contribution: number; direction: string }>>([]);
+  const [costData, setCostData] = useState<CostTranslation | null>(null);
 
-  const handlePrediction = useCallback((batchId: string, params: BatchPredictionParams) => {
+  const handlePrediction = useCallback((batchId: string, params: BatchPredictionParams, response?: BatchPredictionResponse) => {
     setLastBatchId(batchId);
     setLastParams(params);
+    // Extract cost_translation from extended response if available
+    const extended = response as (BatchPredictionResponse & { cost_translation?: CostTranslation }) | undefined;
+    if (extended?.cost_translation) {
+      setCostData(extended.cost_translation);
+    }
+  }, []);
+
+  const handleShapData = useCallback((contributions: Array<{ feature: string; contribution: number; direction: string }>) => {
+    setShapContributions(contributions);
   }, []);
 
   return (
@@ -39,8 +58,20 @@ export default function PredictionsPage() {
             onWhatIfToggle={setLiveMode}
           />
         </div>
-        <div className="lg:col-span-5">
-          <ShapChart batchId={lastBatchId} params={lastParams} liveMode={liveMode} />
+        <div className="lg:col-span-5 space-y-5">
+          <ShapChart
+            batchId={lastBatchId}
+            params={lastParams}
+            liveMode={liveMode}
+            onShapData={handleShapData}
+          />
+          <RecommendationPanel
+            batchId={lastBatchId}
+            params={lastParams}
+            shapContributions={shapContributions}
+            target="energy_kwh"
+          />
+          <CostPanel costData={costData} />
         </div>
       </div>
     </div>

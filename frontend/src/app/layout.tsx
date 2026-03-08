@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
+import { PlantFloorShell } from "@/components/layout/PlantFloorShell";
 
 export const metadata: Metadata = {
   title: "PlantIQ — Manufacturing Intelligence",
@@ -19,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div className="flex h-screen bg-slate-50 overflow-hidden">
+        <PlantFloorShell>
           <Sidebar />
           <div className="flex-1 flex flex-col overflow-hidden">
             <Header />
@@ -27,7 +28,7 @@ export default function RootLayout({
               {children}
             </main>
           </div>
-        </div>
+        </PlantFloorShell>
       </body>
     </html>
   );

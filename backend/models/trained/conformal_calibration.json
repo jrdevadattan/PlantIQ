@@ -1,0 +1,53 @@
+{
+  "method": "split_conformal",
+  "coverage_levels": [
+    0.8,
+    0.85,
+    0.9,
+    0.95,
+    0.99
+  ],
+  "n_calibration_samples": 400,
+  "quantiles": {
+    "quality_score": {
+      "q80": 1.7717,
+      "q85": 1.9901,
+      "q90": 2.2739,
+      "q95": 2.7095,
+      "q99": 3.5609,
+      "mean_residual": 1.0849,
+      "median_residual": 0.9301,
+      "max_residual": 4.137
+    },
+    "yield_pct": {
+      "q80": 1.4874,
+      "q85": 1.6707,
+      "q90": 1.909,
+      "q95": 2.2747,
+      "q99": 2.9895,
+      "mean_residual": 0.9256,
+      "median_residual": 0.7809,
+      "max_residual": 3.4731
+    },
+    "performance_pct": {
+      "q80": 2.1964,
+      "q85": 2.4672,
+      "q90": 2.8191,
+      "q95": 3.3591,
+      "q99": 4.4146,
+      "mean_residual": 1.3696,
+      "median_residual": 1.1531,
+      "max_residual": 5.1288
+    },
+    "energy_kwh": {
+      "q80": 1.9963,
+      "q85": 2.2423,
+      "q90": 2.5622,
+      "q95": 3.053,
+      "q99": 4.0123,
+      "mean_residual": 1.2378,
+      "median_residual": 1.048,
+      "max_residual": 4.6614
+    }
+  }
+}

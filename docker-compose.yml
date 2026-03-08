@@ -1,0 +1,52 @@
+# PlantIQ — Docker Compose (Full Stack)
+# ========================================
+# Runs backend (FastAPI) + frontend (Next.js) together.
+#
+# Usage:
+#   docker compose up --build         # build and start both services
+#   docker compose up -d              # detached mode
+#   docker compose down               # stop and remove containers
+#   docker compose logs -f backend    # tail backend logs
+
+services:
+  # ── Backend (FastAPI + ML Models) ──────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: plantiq-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist SQLite database across container restarts
+      - backend-data:/app/data
+      - ./backend/models/trained:/app/models/trained:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s  # ML models take time to load
+    restart: unless-stopped
+
+  # ── Frontend (Next.js 14) ──────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://backend:8000
+    container_name: plantiq-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  backend-data:

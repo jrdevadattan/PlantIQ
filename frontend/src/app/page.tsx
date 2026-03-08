@@ -34,6 +34,10 @@ const ShiftOverview = dynamic(
   () => import("@/components/dashboard/ShiftOverview").then(mod => mod.ShiftOverview),
   { ssr: false }
 );
+const AlertPanel = dynamic(
+  () => import("@/components/dashboard/AlertPanel").then(mod => mod.AlertPanel),
+  { ssr: false }
+);
 
 export default function DashboardPage() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
@@ -158,6 +162,9 @@ export default function DashboardPage() {
           <ShiftOverview />
         </div>
       </div>
+
+      {/* Row 4: Active Alerts */}
+      <AlertPanel maxItems={5} />
     </div>
   );
 }

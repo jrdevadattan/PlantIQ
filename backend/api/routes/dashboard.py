@@ -256,17 +256,22 @@ async def get_recent_batches(limit: int = Query(default=6, ge=1, le=50)):
         else:
             status = "completed"
 
-        # Compute anomaly score from fault type
+        # Compute anomaly score deterministically from fault type + batch index
+        # Uses a hash of the batch_id so scores are stable across refreshes
+        # but vary naturally between batches
+        batch_hash = hash(str(row["batch_id"])) % 100  # 0–99 deterministic seed
+        frac = batch_hash / 100.0  # 0.0–0.99 spread factor
+
         if fault == "normal":
-            anomaly_score = round(np.random.uniform(0.02, 0.14), 2)
+            anomaly_score = round(0.02 + frac * 0.12, 2)       # 0.02–0.14
         elif fault == "bearing_wear":
-            anomaly_score = round(np.random.uniform(0.35, 0.65), 2)
+            anomaly_score = round(0.35 + frac * 0.30, 2)       # 0.35–0.65
         elif fault == "wet_material":
-            anomaly_score = round(np.random.uniform(0.50, 0.85), 2)
+            anomaly_score = round(0.50 + frac * 0.35, 2)       # 0.50–0.85
         elif fault == "calibration_needed":
-            anomaly_score = round(np.random.uniform(0.60, 0.90), 2)
+            anomaly_score = round(0.60 + frac * 0.30, 2)       # 0.60–0.90
         else:
-            anomaly_score = round(np.random.uniform(0.15, 0.30), 2)
+            anomaly_score = round(0.15 + frac * 0.15, 2)       # 0.15–0.30
 
         result.append(DashboardBatchRecord(
             id=str(row["batch_id"]),

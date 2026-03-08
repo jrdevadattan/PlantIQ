@@ -69,6 +69,10 @@ class BatchPredictionResponse(BaseModel):
     predictions: PredictionValues
     confidence_intervals: dict[str, ConfidenceInterval]
     carbon_budget: CarbonBudget
+    cost_translation: Optional[dict] = Field(
+        default=None,
+        description="Cost breakdown from Decision Engine Component 3.1 (₹, CO₂, monthly projection)",
+    )
 
 
 # ══════════════════════════════════════════════════════════════

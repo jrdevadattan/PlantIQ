@@ -196,7 +196,7 @@ export function AnomalyDetector() {
         <div className={cn("rounded-xl border p-5", colors.bg, colors.border)}>
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <span className={`status-dot ${colors.dot}`} />
+              <span className={cn("status-dot", colors.dot)} />
               <div>
                 <h3 className={cn("text-sm font-bold", colors.text)}>
                   {isAnomaly ? "Anomaly Detected" : "No Anomaly"}

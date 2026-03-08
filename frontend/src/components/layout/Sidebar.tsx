@@ -14,6 +14,7 @@ import {
   TbHelp,
   TbChevronRight,
   TbBolt,
+  TbChartBar,
 } from "react-icons/tb";
 import { cn } from "@/lib/utils";
 import { fetchHealth } from "@/lib/api";
@@ -25,6 +26,7 @@ const menuItems = [
   { name: "Live Monitor", icon: TbActivityHeartbeat, href: "/monitor" },
   { name: "Anomaly Detection", icon: TbAlertTriangle, href: "/anomalies" },
   { name: "Batch History", icon: TbHistory, href: "/history" },
+  { name: "Management", icon: TbChartBar, href: "/management" },
 ];
 
 const footerItems = [
@@ -53,7 +55,7 @@ export function Sidebar() {
   }, []);
 
   return (
-    <div className="w-64 bg-white border-r border-slate-200 flex flex-col h-screen overflow-hidden">
+    <div className="hidden lg:flex w-64 bg-white border-r border-slate-200 flex-col h-screen overflow-hidden flex-shrink-0">
       {/* Logo area */}
       <div className="h-16 flex items-center px-6 gap-3 flex-shrink-0 border-b border-slate-100">
         <div className="w-9 h-9 rounded-lg bg-teal-600 flex items-center justify-center">

@@ -84,7 +84,7 @@ const colorMap: Record<string, string> = {
 };
 
 interface PreBatchPanelProps {
-  onPrediction?: (batchId: string, params: BatchPredictionParams) => void;
+  onPrediction?: (batchId: string, params: BatchPredictionParams, response?: BatchPredictionResponse) => void;
   onWhatIfToggle?: (enabled: boolean) => void;
 }
 
@@ -132,7 +132,7 @@ export function PreBatchPanel({ onPrediction, onWhatIfToggle }: PreBatchPanelPro
       setResult(response);
       /* First prediction becomes the baseline for delta comparison */
       if (!baseline) setBaseline(response);
-      onPrediction?.(response.batch_id, apiParams);
+      onPrediction?.(response.batch_id, apiParams, response);
     } catch (err: any) {
       console.error("[PreBatchPanel]", err);
       if (!isWhatIf) {
@@ -166,7 +166,7 @@ export function PreBatchPanel({ onPrediction, onWhatIfToggle }: PreBatchPanelPro
       const response = await predictBatch(apiParams);
       setResult(response);
       if (!baseline) setBaseline(response);
-      onPrediction?.(response.batch_id, apiParams);
+      onPrediction?.(response.batch_id, apiParams, response);
       return response;
     } catch (err: any) {
       console.error("[PreBatchPanel]", err);
