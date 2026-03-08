@@ -152,7 +152,7 @@
     },
     "Moisture_Content_Tablet_Weight_Hardness_Friability_Disintegration_Time_Dissolution_Rate_Content_Uniformity": {
       "scenario_id": "Moisture_Content_Tablet_Weight_Hardness_Friability_Disintegration_Time_Dissolution_Rate_Content_Uniformity",
-      "created_at": "2026-03-06T01:01:18.475437",
+      "created_at": "2026-03-08T22:58:48.441270",
       "n_batches_analyzed": 60,
       "n_pareto_optimal": 56,
       "golden_parameters": {
@@ -289,7 +289,7 @@
     },
     "quality_score_yield_pct_performance_pct_energy_kwh": {
       "scenario_id": "quality_score_yield_pct_performance_pct_energy_kwh",
-      "created_at": "2026-03-06T01:01:16.369435",
+      "created_at": "2026-03-08T22:58:46.267699",
       "n_batches_analyzed": 2000,
       "n_pareto_optimal": 27,
       "golden_parameters": {
@@ -405,7 +405,7 @@
     },
     "quality_score_yield_pct_energy_kwh": {
       "scenario_id": "quality_score_yield_pct_energy_kwh",
-      "created_at": "2026-03-06T01:01:24.827843",
+      "created_at": "2026-03-08T22:58:54.644693",
       "n_batches_analyzed": 2000,
       "n_pareto_optimal": 9,
       "golden_parameters": {
@@ -569,7 +569,55 @@
       "scenario_id": "quality_score_yield_pct_energy_kwh",
       "timestamp": "2026-03-06T01:01:24.827928",
       "composite_score": 0.8583
+    },
+    {
+      "action": "discover",
+      "scenario_id": "quality_score_yield_pct_performance_pct_energy_kwh",
+      "timestamp": "2026-03-08T22:43:45.689396",
+      "composite_score": 0.8221
+    },
+    {
+      "action": "discover",
+      "scenario_id": "quality_score_yield_pct_energy_kwh",
+      "timestamp": "2026-03-08T22:43:54.135047",
+      "composite_score": 0.8583
+    },
+    {
+      "action": "discover",
+      "scenario_id": "quality_score_yield_pct_performance_pct_energy_kwh",
+      "timestamp": "2026-03-08T22:45:09.045335",
+      "composite_score": 0.8221
+    },
+    {
+      "action": "discover",
+      "scenario_id": "Moisture_Content_Tablet_Weight_Hardness_Friability_Disintegration_Time_Dissolution_Rate_Content_Uniformity",
+      "timestamp": "2026-03-08T22:45:11.530024",
+      "composite_score": 0.6395
+    },
+    {
+      "action": "discover",
+      "scenario_id": "quality_score_yield_pct_energy_kwh",
+      "timestamp": "2026-03-08T22:45:17.768143",
+      "composite_score": 0.8583
+    },
+    {
+      "action": "discover",
+      "scenario_id": "quality_score_yield_pct_performance_pct_energy_kwh",
+      "timestamp": "2026-03-08T22:58:46.267785",
+      "composite_score": 0.8221
+    },
+    {
+      "action": "discover",
+      "scenario_id": "Moisture_Content_Tablet_Weight_Hardness_Friability_Disintegration_Time_Dissolution_Rate_Content_Uniformity",
+      "timestamp": "2026-03-08T22:58:48.441360",
+      "composite_score": 0.6395
+    },
+    {
+      "action": "discover",
+      "scenario_id": "quality_score_yield_pct_energy_kwh",
+      "timestamp": "2026-03-08T22:58:54.644760",
+      "composite_score": 0.8583
     }
   ],
-  "last_updated": "2026-03-06T01:01:24.828185"
+  "last_updated": "2026-03-08T22:58:54.644933"
 }

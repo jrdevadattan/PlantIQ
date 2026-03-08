@@ -25,7 +25,7 @@ export default function HistoryPage() {
     let cancelled = false;
     async function loadBatches() {
       try {
-        const data = await fetchRecentBatches(200);
+        const data = await fetchRecentBatches(50);
         if (!cancelled) setBatches(data);
       } catch (err) {
         console.error("[HistoryPage] API fallback to mock data:", err);

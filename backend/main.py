@@ -238,6 +238,7 @@ from api.routes.dashboard import router as dashboard_router
 from api.routes.cost import router as cost_router
 from api.routes.audit import router as audit_router
 from api.routes.recommend import router as recommend_router
+from api.routes.live import router as live_router
 
 app.include_router(health_router)
 app.include_router(predict_router)
@@ -251,6 +252,7 @@ app.include_router(dashboard_router)
 app.include_router(cost_router)
 app.include_router(audit_router)
 app.include_router(recommend_router)
+app.include_router(live_router)
 
 
 # ── Root redirect to docs ────────────────────────────────────

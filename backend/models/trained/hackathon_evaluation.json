@@ -31,58 +31,58 @@
   "results": {
     "per_target": {
       "Moisture_Content": {
-        "mae": 0.0566,
+        "mae": 0.0568,
         "rmse": 0.0747,
-        "mape": 2.99,
-        "r2": 0.9888,
-        "accuracy_pct": 97.01
+        "mape": 3.0,
+        "r2": 0.9887,
+        "accuracy_pct": 97.0
       },
       "Tablet_Weight": {
-        "mae": 0.5895,
-        "rmse": 0.7257,
+        "mae": 0.5894,
+        "rmse": 0.7178,
         "mape": 0.29,
-        "r2": 0.9175,
+        "r2": 0.9193,
         "accuracy_pct": 99.71
       },
       "Hardness": {
-        "mae": 1.7426,
-        "rmse": 2.1753,
-        "mape": 1.94,
-        "r2": 0.9895,
-        "accuracy_pct": 98.06
+        "mae": 1.7445,
+        "rmse": 2.1348,
+        "mape": 1.95,
+        "r2": 0.9899,
+        "accuracy_pct": 98.05
       },
       "Friability": {
-        "mae": 0.0194,
+        "mae": 0.0193,
         "rmse": 0.0239,
-        "mape": 2.89,
+        "mape": 2.88,
         "r2": 0.9926,
-        "accuracy_pct": 97.11
+        "accuracy_pct": 97.12
       },
       "Disintegration_Time": {
-        "mae": 0.3608,
-        "rmse": 0.5826,
-        "mape": 3.45,
-        "r2": 0.9776,
-        "accuracy_pct": 96.55
+        "mae": 0.3541,
+        "rmse": 0.5806,
+        "mape": 3.33,
+        "r2": 0.9778,
+        "accuracy_pct": 96.67
       },
       "Dissolution_Rate": {
-        "mae": 0.4053,
-        "rmse": 0.6401,
+        "mae": 0.4046,
+        "rmse": 0.6433,
         "mape": 0.46,
-        "r2": 0.9786,
+        "r2": 0.9784,
         "accuracy_pct": 99.54
       },
       "Content_Uniformity": {
-        "mae": 0.4334,
-        "rmse": 0.5246,
+        "mae": 0.4365,
+        "rmse": 0.5284,
         "mape": 0.44,
-        "r2": 0.9783,
+        "r2": 0.978,
         "accuracy_pct": 99.56
       }
     },
     "overall": {
-      "avg_accuracy_pct": 98.22,
-      "avg_r2": 0.9747,
+      "avg_accuracy_pct": 98.24,
+      "avg_r2": 0.975,
       "meets_90pct_target": true
     }
   }

@@ -164,6 +164,43 @@ async def predict_hackathon(request: HackathonPredictRequest):
     }
 
 
+@router.post("/predict-core")
+async def predict_hackathon_core(request: HackathonPredictRequest):
+    """Predict the README core pharma outcomes + estimated energy.
+
+    Returns the five top-level outcomes commonly consumed by UI and demos:
+      - hardness
+      - friability
+      - dissolution_rate
+      - content_uniformity
+      - energy_kwh (engineering estimate from process settings)
+    """
+    base = await predict_hackathon(request)
+    preds = base.get("predictions", {})
+
+    # Lightweight engineering estimate for energy in pharma mode.
+    # This keeps API parity with the platform-wide energy objective.
+    energy_kwh = round(
+        12.0
+        + 0.42 * request.drying_time
+        + 0.35 * request.compression_force
+        + 0.18 * request.machine_speed
+        + 0.60 * request.binder_amount,
+        2,
+    )
+
+    return {
+        "status": "success",
+        "core_predictions": {
+            "hardness": preds.get("Hardness"),
+            "friability": preds.get("Friability"),
+            "dissolution_rate": preds.get("Dissolution_Rate"),
+            "content_uniformity": preds.get("Content_Uniformity"),
+            "energy_kwh": energy_kwh,
+        },
+    }
+
+
 # ──────────────────────────────────────────────────────────────
 # GET /hackathon/production-data
 # ──────────────────────────────────────────────────────────────
