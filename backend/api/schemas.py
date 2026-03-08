@@ -253,3 +253,74 @@ class HackathonPredictRequest(BaseModel):
     compression_force: float = Field(..., ge=10, le=30, description="Compression force (kN)")
     machine_speed: float = Field(..., ge=20, le=60, description="Machine speed (rpm)")
     lubricant_conc: float = Field(..., ge=0.3, le=1.5, description="Lubricant concentration (%)")
+
+
+# ══════════════════════════════════════════════════════════════
+# Dashboard
+# ══════════════════════════════════════════════════════════════
+
+class DashboardSummaryResponse(BaseModel):
+    """GET /dashboard/summary response — KPI card aggregates."""
+    total_batches: int
+    running_count: int
+    avg_energy: float
+    avg_quality: float
+    avg_yield: float
+    avg_performance: float
+    anomaly_count: int
+    resolved_count: int
+    model_accuracy: float
+    mape_pct: float
+    energy_trend: str = ""       # "up" | "down" | ""
+    energy_trend_value: str = "" # e.g. "4.2%"
+    quality_trend: str = ""
+    quality_trend_value: str = ""
+    yield_trend: str = ""
+    yield_trend_value: str = ""
+
+
+class DailyEnergyItem(BaseModel):
+    """Single day entry for daily energy bar chart."""
+    day: str           # Short day name: Mon, Tue, ...
+    kwh: float         # Total energy for the day
+    date: str          # ISO date string
+    batch_count: int   # Number of batches that day
+
+
+class DashboardBatchRecord(BaseModel):
+    """Batch record shaped for the frontend RecentBatches table."""
+    id: str
+    timestamp: str
+    temperature: float
+    conveyorSpeed: float
+    holdTime: float
+    batchSize: float
+    materialType: int
+    hourOfDay: int
+    qualityScore: float
+    yieldPct: float
+    performancePct: float
+    energyKwh: float
+    status: str         # completed | running | scheduled | alert
+    anomalyScore: float
+
+
+class ShiftPerformanceItem(BaseModel):
+    """Per-shift aggregated performance metrics."""
+    shift: str        # "Morning (6-14)", "Afternoon (14-22)", "Night (22-6)"
+    quality: float
+    yield_pct: float
+    energy: float
+    batches: int
+
+
+class LatestBatchResponse(BaseModel):
+    """GET /dashboard/latest-batch response — for performance gauges."""
+    batch_id: str
+    quality_score: float
+    yield_pct: float
+    performance_pct: float
+    energy_kwh: float
+    progress_pct: float
+    elapsed_display: str   # "7:48"
+    total_display: str     # "30:00"

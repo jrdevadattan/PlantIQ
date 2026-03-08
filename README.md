@@ -1,5 +1,5 @@
 # 🏭 AI-Driven Manufacturing Intelligence
-## Track A : Predictive Modelling Specialization
+## Track A - Predictive Modelling Specialization
 
 > **Adaptive Multi-Objective Optimization of Industrial Batch Processes and Energy Pattern Analytics for Asset Reliability, Process Optimization, and Carbon Management**
 

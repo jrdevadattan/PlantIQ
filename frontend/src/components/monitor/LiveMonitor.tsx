@@ -24,6 +24,7 @@ import {
 import { cn } from "@/lib/utils";
 import { detectAnomaly } from "@/lib/api";
 import type { AnomalyDetectResponse } from "@/lib/api";
+import { CarbonGauge } from "@/components/predictions/CarbonGauge";
 
 // Generate a realistic power reading
 function nextPowerReading(t: number, faultType: string = "normal"): number {
@@ -265,6 +266,49 @@ export function LiveMonitor() {
           </div>
         </div>
       )}
+
+      {/* Live Carbon Budget Gauge */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <CarbonGauge
+          predictedKg={Number((energyConsumed * 0.82 / Math.max(progress / 100, 0.01)).toFixed(1))}
+          budgetKg={42.0}
+          compact
+        />
+        <div className="bg-white rounded-xl border border-slate-100 p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <TbBolt className="w-4 h-4 text-amber-500" />
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">
+              Energy Metrics
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <p className="text-[10px] text-slate-400 uppercase font-bold">Consumed</p>
+              <p className="text-lg font-bold font-mono text-slate-700">
+                {energyConsumed.toFixed(2)} <span className="text-xs text-slate-400">kWh</span>
+              </p>
+            </div>
+            <div>
+              <p className="text-[10px] text-slate-400 uppercase font-bold">Projected</p>
+              <p className="text-lg font-bold font-mono text-slate-700">
+                {progress > 0 ? (energyConsumed / (progress / 100)).toFixed(1) : "—"} <span className="text-xs text-slate-400">kWh</span>
+              </p>
+            </div>
+            <div>
+              <p className="text-[10px] text-slate-400 uppercase font-bold">CO₂ So Far</p>
+              <p className="text-lg font-bold font-mono text-slate-700">
+                {(energyConsumed * 0.82).toFixed(1)} <span className="text-xs text-slate-400">kg</span>
+              </p>
+            </div>
+            <div>
+              <p className="text-[10px] text-slate-400 uppercase font-bold">CO₂ Target</p>
+              <p className="text-lg font-bold font-mono text-emerald-600">
+                42.0 <span className="text-xs text-slate-400">kg</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Power Curve Chart */}
       <div className="bg-white rounded-xl border border-slate-100 p-5">

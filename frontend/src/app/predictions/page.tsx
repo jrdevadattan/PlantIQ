@@ -16,6 +16,7 @@ const ShapChart = dynamic(
 export default function PredictionsPage() {
   const [lastBatchId, setLastBatchId] = useState<string | null>(null);
   const [lastParams, setLastParams] = useState<BatchPredictionParams | null>(null);
+  const [liveMode, setLiveMode] = useState(false);
 
   const handlePrediction = useCallback((batchId: string, params: BatchPredictionParams) => {
     setLastBatchId(batchId);
@@ -33,10 +34,13 @@ export default function PredictionsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         <div className="lg:col-span-7">
-          <PreBatchPanel onPrediction={handlePrediction} />
+          <PreBatchPanel
+            onPrediction={handlePrediction}
+            onWhatIfToggle={setLiveMode}
+          />
         </div>
         <div className="lg:col-span-5">
-          <ShapChart batchId={lastBatchId} params={lastParams} />
+          <ShapChart batchId={lastBatchId} params={lastParams} liveMode={liveMode} />
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   TbSend,
   TbTemperature,
@@ -14,12 +14,19 @@ import {
   TbTrendingUp,
   TbBolt,
   TbGauge,
-  TbLeaf,
   TbAlertTriangle,
+  TbAdjustments,
+  TbArrowUp,
+  TbArrowDown,
+  TbRefresh,
+  TbUser,
+  TbLivePhoto,
 } from "react-icons/tb";
 import { cn } from "@/lib/utils";
+import { useDebounce } from "@/lib/hooks";
 import { predictBatch } from "@/lib/api";
 import type { BatchPredictionResponse, BatchPredictionParams } from "@/lib/api";
+import { CarbonGauge } from "@/components/predictions/CarbonGauge";
 
 interface FormField {
   name: string;
@@ -40,9 +47,27 @@ const fields: FormField[] = [
 ];
 
 const materialTypes = [
-  { value: 1, label: "Type A — Standard" },
-  { value: 2, label: "Type B — Dense" },
+  { value: 0, label: "Type A — Standard" },
+  { value: 1, label: "Type B — Dense" },
+  { value: 2, label: "Type C — Composite" },
 ];
+
+const operatorLevels = [
+  { value: 0, label: "Junior" },
+  { value: 1, label: "Mid-Level" },
+  { value: 2, label: "Senior" },
+];
+
+/** Default form values — used for reset */
+const DEFAULTS = {
+  temperature: 183,
+  conveyorSpeed: 76,
+  holdTime: 18,
+  batchSize: 500,
+  materialType: 0,
+  hourOfDay: Math.max(6, Math.min(21, new Date().getHours())),
+  operatorExp: 1,
+};
 
 const resultCards = [
   { key: "quality_score", label: "Quality Score", icon: TbChartBar, color: "teal", unit: "%" },
@@ -58,31 +83,37 @@ const colorMap: Record<string, string> = {
   amber: "bg-amber-50 text-amber-600 border-amber-100",
 };
 
-const carbonStatusStyles: Record<string, string> = {
-  ON_TRACK: "bg-emerald-50 text-emerald-700 border-emerald-100",
-  WARNING: "bg-amber-50 text-amber-700 border-amber-100",
-  OVER_BUDGET: "bg-red-50 text-red-700 border-red-100",
-};
-
 interface PreBatchPanelProps {
   onPrediction?: (batchId: string, params: BatchPredictionParams) => void;
+  onWhatIfToggle?: (enabled: boolean) => void;
 }
 
-export function PreBatchPanel({ onPrediction }: PreBatchPanelProps) {
-  const [formData, setFormData] = useState({
-    temperature: 183,
-    conveyorSpeed: 76,
-    holdTime: 18,
-    batchSize: 500,
-    materialType: 0,
-    hourOfDay: Math.max(6, Math.min(21, new Date().getHours())),
-    operatorExp: 1,
-  });
+export function PreBatchPanel({ onPrediction, onWhatIfToggle }: PreBatchPanelProps) {
+  const [formData, setFormData] = useState({ ...DEFAULTS });
   const [result, setResult] = useState<BatchPredictionResponse | null>(null);
+  const [baseline, setBaseline] = useState<BatchPredictionResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [whatIfMode, setWhatIfMode] = useState(false);
 
-  const handleSubmit = async () => {
+  /* Debounced form data for What-If auto-predict (400ms) */
+  const debouncedForm = useDebounce(formData, 400);
+  const hasMounted = useRef(false);
+
+  /* ── What-If auto-predict effect ─────────────────────── */
+  useEffect(() => {
+    if (!whatIfMode) return;
+    // Skip the first render (mounting)
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return;
+    }
+    runPrediction(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedForm, whatIfMode]);
+
+  /* ── Core prediction function ────────────────────────── */
+  const runPrediction = useCallback(async (isWhatIf = false) => {
     setLoading(true);
     setError(null);
 
@@ -99,10 +130,48 @@ export function PreBatchPanel({ onPrediction }: PreBatchPanelProps) {
     try {
       const response = await predictBatch(apiParams);
       setResult(response);
+      /* First prediction becomes the baseline for delta comparison */
+      if (!baseline) setBaseline(response);
       onPrediction?.(response.batch_id, apiParams);
     } catch (err: any) {
       console.error("[PreBatchPanel]", err);
+      if (!isWhatIf) {
+        setError(err.message ?? "Prediction failed. Is the backend running?");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [formData, baseline, onPrediction]);
+
+  const handleSubmit = async () => {
+    const response = await runPredictionAndReturn();
+    if (response) setBaseline(response);
+  };
+
+  const runPredictionAndReturn = async (): Promise<BatchPredictionResponse | null> => {
+    setLoading(true);
+    setError(null);
+
+    const apiParams: BatchPredictionParams = {
+      temperature: formData.temperature,
+      conveyor_speed: formData.conveyorSpeed,
+      hold_time: formData.holdTime,
+      batch_size: formData.batchSize,
+      material_type: formData.materialType,
+      hour_of_day: formData.hourOfDay,
+      operator_exp: formData.operatorExp,
+    };
+
+    try {
+      const response = await predictBatch(apiParams);
+      setResult(response);
+      if (!baseline) setBaseline(response);
+      onPrediction?.(response.batch_id, apiParams);
+      return response;
+    } catch (err: any) {
+      console.error("[PreBatchPanel]", err);
       setError(err.message ?? "Prediction failed. Is the backend running?");
+      return null;
     } finally {
       setLoading(false);
     }
@@ -112,19 +181,86 @@ export function PreBatchPanel({ onPrediction }: PreBatchPanelProps) {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const resetDefaults = () => {
+    setFormData({ ...DEFAULTS });
+  };
+
+  /* ── Delta calculation helper ────────────────────────── */
+  const getDelta = (key: string): number | null => {
+    if (!whatIfMode || !baseline || !result) return null;
+    const curr = result.predictions[key as keyof typeof result.predictions] as number;
+    const base = baseline.predictions[key as keyof typeof baseline.predictions] as number;
+    if (typeof curr !== "number" || typeof base !== "number") return null;
+    const d = curr - base;
+    return Math.abs(d) < 0.05 ? null : d;
+  };
+
   return (
     <div className="space-y-5">
       {/* Input Form */}
       <div className="bg-white rounded-xl border border-slate-100 p-5">
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center">
-            <TbSend className="w-[18px] h-[18px] text-teal-600" />
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div className={cn(
+              "w-9 h-9 rounded-lg flex items-center justify-center",
+              whatIfMode ? "bg-violet-50" : "bg-teal-50"
+            )}>
+              {whatIfMode ? (
+                <TbAdjustments className="w-[18px] h-[18px] text-violet-600" />
+              ) : (
+                <TbSend className="w-[18px] h-[18px] text-teal-600" />
+              )}
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                {whatIfMode ? "What-If Simulator" : "Batch Parameters"}
+                {whatIfMode && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 text-[10px] font-bold uppercase animate-pulse">
+                    <TbLivePhoto className="w-3 h-3" />
+                    Live
+                  </span>
+                )}
+              </h3>
+              <p className="text-[11px] text-slate-400">
+                {whatIfMode
+                  ? "Drag sliders to see predictions update in real time"
+                  : "Enter setup values to predict outcomes before the batch starts"}
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-sm font-bold text-slate-800">Batch Parameters</h3>
-            <p className="text-[11px] text-slate-400">
-              Enter setup values to predict outcomes before the batch starts
-            </p>
+
+          <div className="flex items-center gap-2">
+            {/* Reset button */}
+            <button
+              onClick={resetDefaults}
+              className="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all"
+              title="Reset to defaults"
+            >
+              <TbRefresh className="w-4 h-4" />
+            </button>
+
+            {/* What-If Mode Toggle */}
+            <button
+              onClick={() => {
+                setWhatIfMode(prev => {
+                  const next = !prev;
+                  onWhatIfToggle?.(next);
+                  return next;
+                });
+              }}
+              className={cn(
+                "relative w-11 h-6 rounded-full transition-colors duration-200",
+                whatIfMode ? "bg-violet-500" : "bg-slate-200"
+              )}
+              aria-label="Toggle What-If mode"
+            >
+              <span
+                className={cn(
+                  "absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200",
+                  whatIfMode && "translate-x-5"
+                )}
+              />
+            </button>
           </div>
         </div>
 
@@ -213,6 +349,30 @@ export function PreBatchPanel({ onPrediction }: PreBatchPanelProps) {
           </div>
         </div>
 
+        {/* Operator Experience */}
+        <div className="mt-4 space-y-2">
+          <label className="flex items-center gap-2 text-[11px] font-bold text-slate-500 uppercase tracking-wide">
+            <TbUser className="w-3.5 h-3.5 text-slate-400" />
+            Operator Experience
+          </label>
+          <div className="flex gap-3">
+            {operatorLevels.map((ol) => (
+              <button
+                key={ol.value}
+                onClick={() => updateField("operatorExp", ol.value)}
+                className={cn(
+                  "flex-1 px-4 py-2.5 rounded-lg text-xs font-bold border transition-all",
+                  formData.operatorExp === ol.value
+                    ? "bg-teal-50 text-teal-700 border-teal-200"
+                    : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                )}
+              >
+                {ol.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Error state */}
         {error && (
           <div className="mt-4 p-3 bg-red-50 border border-red-100 rounded-lg flex items-start gap-2">
@@ -221,44 +381,91 @@ export function PreBatchPanel({ onPrediction }: PreBatchPanelProps) {
           </div>
         )}
 
-        {/* Submit */}
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className={cn(
-            "mt-5 w-full py-3 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2",
-            loading
-              ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-              : "bg-teal-600 text-white hover:bg-teal-700 active:scale-[0.99] shadow-sm"
-          )}
-        >
-          {loading ? (
-            <>
-              <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-500 rounded-full animate-spin" />
-              Running Prediction...
-            </>
-          ) : (
-            <>
-              <TbSend className="w-4 h-4" />
-              Predict Batch Outcomes
-            </>
-          )}
-        </button>
+        {/* Submit — visible when What-If mode is OFF */}
+        {!whatIfMode && (
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className={cn(
+              "mt-5 w-full py-3 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2",
+              loading
+                ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                : "bg-teal-600 text-white hover:bg-teal-700 active:scale-[0.99] shadow-sm"
+            )}
+          >
+            {loading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-500 rounded-full animate-spin" />
+                Running Prediction...
+              </>
+            ) : (
+              <>
+                <TbSend className="w-4 h-4" />
+                Predict Batch Outcomes
+              </>
+            )}
+          </button>
+        )}
+
+        {/* What-If mode active indicator */}
+        {whatIfMode && (
+          <div className="mt-5 flex items-center justify-center gap-2 py-2 text-[11px] text-violet-500 font-medium">
+            {loading ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-violet-200 border-t-violet-500 rounded-full animate-spin" />
+                Updating predictions...
+              </>
+            ) : result ? (
+              <>
+                <TbCircleCheck className="w-4 h-4 text-violet-500" />
+                Predictions update live as you adjust sliders
+              </>
+            ) : (
+              <>
+                <TbAdjustments className="w-4 h-4" />
+                Adjust any slider to see live predictions
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Prediction Results */}
       {result && (
-        <div className="bg-white rounded-xl border border-slate-100 p-5 animate-count">
+        <div className={cn(
+          "bg-white rounded-xl border p-5 animate-count",
+          whatIfMode ? "border-violet-200" : "border-slate-100"
+        )}>
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
-              <TbCircleCheck className="w-[18px] h-[18px] text-emerald-600" />
+            <div className={cn(
+              "w-9 h-9 rounded-lg flex items-center justify-center",
+              whatIfMode ? "bg-violet-50" : "bg-emerald-50"
+            )}>
+              {whatIfMode ? (
+                <TbAdjustments className="w-[18px] h-[18px] text-violet-600" />
+              ) : (
+                <TbCircleCheck className="w-[18px] h-[18px] text-emerald-600" />
+              )}
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-800">Prediction Results</h3>
+              <h3 className="text-sm font-bold text-slate-800">
+                {whatIfMode ? "What-If Results" : "Prediction Results"}
+              </h3>
               <p className="text-[11px] text-slate-400">
-                Batch {result.batch_id} — Multi-target prediction with confidence intervals
+                {whatIfMode
+                  ? "Comparing against baseline — deltas shown"
+                  : `Batch ${result.batch_id} — Multi-target prediction with confidence intervals`}
               </p>
             </div>
+            {/* Set baseline button in What-If mode */}
+            {whatIfMode && baseline && (
+              <button
+                onClick={() => setBaseline(result)}
+                className="ml-auto px-3 py-1.5 rounded-lg text-[10px] font-bold text-violet-600 bg-violet-50 border border-violet-100 hover:bg-violet-100 transition-all"
+              >
+                Set as Baseline
+              </button>
+            )}
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -266,10 +473,11 @@ export function PreBatchPanel({ onPrediction }: PreBatchPanelProps) {
               const Icon = card.icon;
               const val = result.predictions[card.key as keyof typeof result.predictions] as number;
               const ci = result.confidence_intervals[card.key];
+              const delta = getDelta(card.key);
               return (
                 <div
                   key={card.key}
-                  className={cn("p-4 rounded-lg border", colorMap[card.color])}
+                  className={cn("p-4 rounded-lg border relative", colorMap[card.color])}
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <Icon className="w-4 h-4" />
@@ -277,13 +485,35 @@ export function PreBatchPanel({ onPrediction }: PreBatchPanelProps) {
                       {card.label}
                     </span>
                   </div>
-                  <p className="text-2xl font-bold text-slate-800">
+                  <p className={cn(
+                    "text-2xl font-bold text-slate-800 transition-opacity",
+                    loading && whatIfMode && "opacity-50"
+                  )}>
                     {typeof val === "number" ? val.toFixed(1) : val}
                     <span className="text-xs font-semibold text-slate-400 ml-1">
                       {card.unit}
                     </span>
                   </p>
-                  {ci && (
+                  {/* Delta indicator — What-If mode only */}
+                  {delta !== null && (
+                    <div className={cn(
+                      "flex items-center gap-1 mt-1.5",
+                      delta > 0
+                        ? (card.key === "energy_kwh" ? "text-amber-600" : "text-emerald-600")
+                        : (card.key === "energy_kwh" ? "text-emerald-600" : "text-amber-600")
+                    )}>
+                      {delta > 0 ? (
+                        <TbArrowUp className="w-3 h-3" />
+                      ) : (
+                        <TbArrowDown className="w-3 h-3" />
+                      )}
+                      <span className="text-[10px] font-bold">
+                        {delta > 0 ? "+" : ""}{delta.toFixed(1)} {card.unit}
+                      </span>
+                      <span className="text-[10px] text-slate-400 ml-0.5">vs baseline</span>
+                    </div>
+                  )}
+                  {ci && !delta && (
                     <p className="text-[10px] text-slate-400 mt-1">
                       CI: {ci.lower.toFixed(1)} — {ci.upper.toFixed(1)}
                     </p>
@@ -293,26 +523,13 @@ export function PreBatchPanel({ onPrediction }: PreBatchPanelProps) {
             })}
           </div>
 
-          {/* Carbon Budget */}
-          <div className={cn(
-            "mt-4 p-4 rounded-lg border flex items-center justify-between",
-            carbonStatusStyles[result.carbon_budget.status] ?? "bg-slate-50 text-slate-700 border-slate-100"
-          )}>
-            <div className="flex items-center gap-3">
-              <TbLeaf className="w-5 h-5" />
-              <div>
-                <p className="text-xs font-bold">Carbon Budget: {result.carbon_budget.status.replace("_", " ")}</p>
-                <p className="text-[10px] opacity-80">
-                  {result.carbon_budget.predicted_usage_kg} kg CO₂ of {result.carbon_budget.batch_budget_kg} kg budget
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-lg font-bold font-mono">
-                {result.carbon_budget.headroom_kg > 0 ? "+" : ""}{result.carbon_budget.headroom_kg}
-              </p>
-              <p className="text-[10px] opacity-70">kg headroom</p>
-            </div>
+          {/* Carbon Budget Gauge */}
+          <div className="mt-4">
+            <CarbonGauge
+              predictedKg={result.carbon_budget.predicted_usage_kg}
+              budgetKg={result.carbon_budget.batch_budget_kg}
+              status={result.carbon_budget.status}
+            />
           </div>
         </div>
       )}

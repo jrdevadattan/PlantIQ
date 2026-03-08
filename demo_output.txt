@@ -1,0 +1,30 @@
+﻿c:\Users\harir\Downloads\ALL\projects\plantiq\.venv\Scripts\python.exe : 
+Traceback (most recent call last):
+At line:1 char:1
++ c:\Users\harir\Downloads\ALL\projects\plantiq\.venv\Scripts\python.ex ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last) 
+   ::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "C:\Users\harir\Downloads\ALL\projects\plantiq\demo\demo_scenario.py", 
+line 566, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\harir\Downloads\ALL\projects\plantiq\demo\demo_scenario.py", 
+line 562, in main
+    run_demo(fault_type=args.inject, fast=args.fast)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\harir\Downloads\ALL\projects\plantiq\demo\demo_scenario.py", 
+line 489, in run_demo
+    banner(f"PlantIQ ù Live Demo Scenario  (fault: {fault_type})")
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\harir\Downloads\ALL\projects\plantiq\demo\demo_scenario.py", 
+line 71, in banner
+    print(f"\n{color}{C.BOLD}{line}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 11-70: 
+character maps to <undefined>

@@ -22,6 +22,8 @@ interface ShapChartProps {
   batchId?: string | null;
   params?: BatchPredictionParams | null;
   target?: string;
+  /** When true, uses a lighter loading indicator for rapid updates */
+  liveMode?: boolean;
 }
 
 /* ── Custom Tooltip ────────────────────────────────────────── */
@@ -49,7 +51,7 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 /* ── Component ─────────────────────────────────────────────── */
 
-export function ShapChart({ batchId, params, target = "energy_kwh" }: ShapChartProps) {
+export function ShapChart({ batchId, params, target = "energy_kwh", liveMode = false }: ShapChartProps) {
   const [data, setData] = useState<ExplainResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -101,7 +103,9 @@ export function ShapChart({ batchId, params, target = "energy_kwh" }: ShapChartP
   }
 
   /* ── Loading state ─────────────────────────────────────── */
-  if (loading) {
+  /* In liveMode, if we already have data, skip the full spinner
+     and show a subtle overlay on the existing chart instead */
+  if (loading && !(liveMode && data)) {
     return (
       <div className="bg-white rounded-xl border border-slate-100 p-5">
         <div className="flex items-center gap-3 mb-4">
@@ -165,7 +169,16 @@ export function ShapChart({ batchId, params, target = "energy_kwh" }: ShapChartP
   const topDriver = sortedData[0];
 
   return (
-    <div className="bg-white rounded-xl border border-slate-100 p-5">
+    <div className="bg-white rounded-xl border border-slate-100 p-5 relative">
+      {/* Live-mode loading overlay — subtle shimmer on existing chart */}
+      {liveMode && loading && (
+        <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] rounded-xl z-10 flex items-center justify-center">
+          <div className="flex items-center gap-2 text-[11px] text-violet-500 font-medium">
+            <div className="w-3.5 h-3.5 border-2 border-violet-200 border-t-violet-500 rounded-full animate-spin" />
+            Updating SHAP...
+          </div>
+        </div>
+      )}
       <div className="flex items-center gap-3 mb-1">
         <div className="w-9 h-9 rounded-lg bg-violet-50 flex items-center justify-center">
           <TbBulb className="w-[18px] h-[18px] text-violet-600" />
