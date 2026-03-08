@@ -1,0 +1,509 @@
+{
+  "per_batch": {
+    "T001": {
+      "energy_kwh": 76.738,
+      "co2_kg": 62.925,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 7,
+      "n_asset_issues": 6,
+      "n_process_issues": 2
+    },
+    "T002": {
+      "energy_kwh": 88.136,
+      "co2_kg": 72.272,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 9,
+      "n_asset_issues": 6,
+      "n_process_issues": 4
+    },
+    "T003": {
+      "energy_kwh": 100.312,
+      "co2_kg": 82.256,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 8,
+      "n_asset_issues": 6,
+      "n_process_issues": 5
+    },
+    "T004": {
+      "energy_kwh": 82.383,
+      "co2_kg": 67.554,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 8,
+      "n_asset_issues": 6,
+      "n_process_issues": 4
+    },
+    "T005": {
+      "energy_kwh": 102.843,
+      "co2_kg": 84.331,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 7,
+      "n_asset_issues": 6,
+      "n_process_issues": 4
+    },
+    "T006": {
+      "energy_kwh": 85.794,
+      "co2_kg": 70.351,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 9,
+      "n_asset_issues": 7,
+      "n_process_issues": 4
+    },
+    "T007": {
+      "energy_kwh": 81.019,
+      "co2_kg": 66.436,
+      "attribution": "process_deviation",
+      "n_anomaly_indicators": 10,
+      "n_asset_issues": 5,
+      "n_process_issues": 7
+    },
+    "T008": {
+      "energy_kwh": 100.304,
+      "co2_kg": 82.249,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 7,
+      "n_asset_issues": 6,
+      "n_process_issues": 5
+    },
+    "T009": {
+      "energy_kwh": 98.627,
+      "co2_kg": 80.874,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 7,
+      "n_asset_issues": 6,
+      "n_process_issues": 4
+    },
+    "T010": {
+      "energy_kwh": 77.424,
+      "co2_kg": 63.488,
+      "attribution": "process_deviation",
+      "n_anomaly_indicators": 8,
+      "n_asset_issues": 5,
+      "n_process_issues": 7
+    },
+    "T011": {
+      "energy_kwh": 82.615,
+      "co2_kg": 67.744,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 9,
+      "n_asset_issues": 5,
+      "n_process_issues": 3
+    },
+    "T012": {
+      "energy_kwh": 106.385,
+      "co2_kg": 87.236,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 12,
+      "n_asset_issues": 6,
+      "n_process_issues": 4
+    },
+    "T013": {
+      "energy_kwh": 92.139,
+      "co2_kg": 75.554,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 8,
+      "n_asset_issues": 5,
+      "n_process_issues": 3
+    },
+    "T014": {
+      "energy_kwh": 117.55,
+      "co2_kg": 96.391,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 10,
+      "n_asset_issues": 6,
+      "n_process_issues": 4
+    },
+    "T015": {
+      "energy_kwh": 77.84,
+      "co2_kg": 63.829,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 9,
+      "n_asset_issues": 7,
+      "n_process_issues": 5
+    },
+    "T016": {
+      "energy_kwh": 106.394,
+      "co2_kg": 87.243,
+      "attribution": "process_deviation",
+      "n_anomaly_indicators": 8,
+      "n_asset_issues": 5,
+      "n_process_issues": 6
+    },
+    "T017": {
+      "energy_kwh": 77.797,
+      "co2_kg": 63.794,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 9,
+      "n_asset_issues": 5,
+      "n_process_issues": 4
+    },
+    "T018": {
+      "energy_kwh": 101.791,
+      "co2_kg": 83.469,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 9,
+      "n_asset_issues": 6,
+      "n_process_issues": 4
+    },
+    "T019": {
+      "energy_kwh": 99.302,
+      "co2_kg": 81.428,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 11,
+      "n_asset_issues": 7,
+      "n_process_issues": 6
+    },
+    "T020": {
+      "energy_kwh": 97.127,
+      "co2_kg": 79.644,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 5,
+      "n_asset_issues": 7,
+      "n_process_issues": 5
+    },
+    "T021": {
+      "energy_kwh": 108.341,
+      "co2_kg": 88.84,
+      "attribution": "mixed",
+      "n_anomaly_indicators": 11,
+      "n_asset_issues": 6,
+      "n_process_issues": 6
+    },
+    "T022": {
+      "energy_kwh": 99.04,
+      "co2_kg": 81.213,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 10,
+      "n_asset_issues": 6,
+      "n_process_issues": 4
+    },
+    "T023": {
+      "energy_kwh": 80.327,
+      "co2_kg": 65.868,
+      "attribution": "process_deviation",
+      "n_anomaly_indicators": 9,
+      "n_asset_issues": 5,
+      "n_process_issues": 6
+    },
+    "T024": {
+      "energy_kwh": 75.869,
+      "co2_kg": 62.213,
+      "attribution": "mixed",
+      "n_anomaly_indicators": 8,
+      "n_asset_issues": 6,
+      "n_process_issues": 6
+    },
+    "T025": {
+      "energy_kwh": 89.327,
+      "co2_kg": 73.248,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 10,
+      "n_asset_issues": 6,
+      "n_process_issues": 3
+    },
+    "T026": {
+      "energy_kwh": 84.871,
+      "co2_kg": 69.594,
+      "attribution": "mixed",
+      "n_anomaly_indicators": 10,
+      "n_asset_issues": 5,
+      "n_process_issues": 5
+    },
+    "T027": {
+      "energy_kwh": 79.112,
+      "co2_kg": 64.872,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 9,
+      "n_asset_issues": 6,
+      "n_process_issues": 3
+    },
+    "T028": {
+      "energy_kwh": 85.884,
+      "co2_kg": 70.425,
+      "attribution": "mixed",
+      "n_anomaly_indicators": 5,
+      "n_asset_issues": 5,
+      "n_process_issues": 5
+    },
+    "T029": {
+      "energy_kwh": 109.998,
+      "co2_kg": 90.198,
+      "attribution": "mixed",
+      "n_anomaly_indicators": 8,
+      "n_asset_issues": 6,
+      "n_process_issues": 6
+    },
+    "T030": {
+      "energy_kwh": 99.728,
+      "co2_kg": 81.777,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 5,
+      "n_asset_issues": 6,
+      "n_process_issues": 5
+    },
+    "T031": {
+      "energy_kwh": 87.551,
+      "co2_kg": 71.792,
+      "attribution": "mixed",
+      "n_anomaly_indicators": 5,
+      "n_asset_issues": 4,
+      "n_process_issues": 4
+    },
+    "T032": {
+      "energy_kwh": 104.017,
+      "co2_kg": 85.294,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 11,
+      "n_asset_issues": 6,
+      "n_process_issues": 4
+    },
+    "T033": {
+      "energy_kwh": 85.859,
+      "co2_kg": 70.404,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 11,
+      "n_asset_issues": 8,
+      "n_process_issues": 3
+    },
+    "T034": {
+      "energy_kwh": 94.148,
+      "co2_kg": 77.201,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 14,
+      "n_asset_issues": 6,
+      "n_process_issues": 3
+    },
+    "T035": {
+      "energy_kwh": 106.564,
+      "co2_kg": 87.382,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 6,
+      "n_asset_issues": 7,
+      "n_process_issues": 4
+    },
+    "T036": {
+      "energy_kwh": 103.209,
+      "co2_kg": 84.631,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 13,
+      "n_asset_issues": 6,
+      "n_process_issues": 5
+    },
+    "T037": {
+      "energy_kwh": 104.34,
+      "co2_kg": 85.559,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 7,
+      "n_asset_issues": 6,
+      "n_process_issues": 4
+    },
+    "T038": {
+      "energy_kwh": 73.08,
+      "co2_kg": 59.926,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 11,
+      "n_asset_issues": 6,
+      "n_process_issues": 3
+    },
+    "T039": {
+      "energy_kwh": 103.083,
+      "co2_kg": 84.528,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 9,
+      "n_asset_issues": 6,
+      "n_process_issues": 4
+    },
+    "T040": {
+      "energy_kwh": 93.038,
+      "co2_kg": 76.291,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 15,
+      "n_asset_issues": 5,
+      "n_process_issues": 4
+    },
+    "T041": {
+      "energy_kwh": 102.113,
+      "co2_kg": 83.733,
+      "attribution": "mixed",
+      "n_anomaly_indicators": 7,
+      "n_asset_issues": 6,
+      "n_process_issues": 6
+    },
+    "T042": {
+      "energy_kwh": 91.614,
+      "co2_kg": 75.123,
+      "attribution": "mixed",
+      "n_anomaly_indicators": 8,
+      "n_asset_issues": 5,
+      "n_process_issues": 5
+    },
+    "T043": {
+      "energy_kwh": 109.52,
+      "co2_kg": 89.806,
+      "attribution": "process_deviation",
+      "n_anomaly_indicators": 10,
+      "n_asset_issues": 3,
+      "n_process_issues": 5
+    },
+    "T044": {
+      "energy_kwh": 80.67,
+      "co2_kg": 66.149,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 9,
+      "n_asset_issues": 7,
+      "n_process_issues": 4
+    },
+    "T045": {
+      "energy_kwh": 114.508,
+      "co2_kg": 93.897,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 7,
+      "n_asset_issues": 7,
+      "n_process_issues": 5
+    },
+    "T046": {
+      "energy_kwh": 75.724,
+      "co2_kg": 62.094,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 5,
+      "n_asset_issues": 6,
+      "n_process_issues": 5
+    },
+    "T047": {
+      "energy_kwh": 100.0,
+      "co2_kg": 82.0,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 9,
+      "n_asset_issues": 5,
+      "n_process_issues": 3
+    },
+    "T048": {
+      "energy_kwh": 77.979,
+      "co2_kg": 63.943,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 10,
+      "n_asset_issues": 6,
+      "n_process_issues": 3
+    },
+    "T049": {
+      "energy_kwh": 86.558,
+      "co2_kg": 70.978,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 12,
+      "n_asset_issues": 5,
+      "n_process_issues": 2
+    },
+    "T050": {
+      "energy_kwh": 109.627,
+      "co2_kg": 89.894,
+      "attribution": "mixed",
+      "n_anomaly_indicators": 6,
+      "n_asset_issues": 6,
+      "n_process_issues": 6
+    },
+    "T051": {
+      "energy_kwh": 76.993,
+      "co2_kg": 63.134,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 5,
+      "n_asset_issues": 8,
+      "n_process_issues": 4
+    },
+    "T052": {
+      "energy_kwh": 98.849,
+      "co2_kg": 81.056,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 7,
+      "n_asset_issues": 6,
+      "n_process_issues": 5
+    },
+    "T053": {
+      "energy_kwh": 104.754,
+      "co2_kg": 85.898,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 6,
+      "n_asset_issues": 7,
+      "n_process_issues": 2
+    },
+    "T054": {
+      "energy_kwh": 111.528,
+      "co2_kg": 91.453,
+      "attribution": "process_deviation",
+      "n_anomaly_indicators": 6,
+      "n_asset_issues": 4,
+      "n_process_issues": 5
+    },
+    "T055": {
+      "energy_kwh": 80.656,
+      "co2_kg": 66.138,
+      "attribution": "process_deviation",
+      "n_anomaly_indicators": 10,
+      "n_asset_issues": 4,
+      "n_process_issues": 7
+    },
+    "T056": {
+      "energy_kwh": 107.588,
+      "co2_kg": 88.222,
+      "attribution": "mixed",
+      "n_anomaly_indicators": 14,
+      "n_asset_issues": 5,
+      "n_process_issues": 5
+    },
+    "T057": {
+      "energy_kwh": 90.869,
+      "co2_kg": 74.513,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 9,
+      "n_asset_issues": 5,
+      "n_process_issues": 3
+    },
+    "T058": {
+      "energy_kwh": 81.411,
+      "co2_kg": 66.757,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 9,
+      "n_asset_issues": 6,
+      "n_process_issues": 5
+    },
+    "T059": {
+      "energy_kwh": 100.372,
+      "co2_kg": 82.305,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 6,
+      "n_asset_issues": 6,
+      "n_process_issues": 5
+    },
+    "T060": {
+      "energy_kwh": 80.919,
+      "co2_kg": 66.354,
+      "attribution": "asset_degradation",
+      "n_anomaly_indicators": 12,
+      "n_asset_issues": 5,
+      "n_process_issues": 2
+    }
+  },
+  "golden_reference": {
+    "batch_id": "T001",
+    "total_energy_kwh": 76.738,
+    "total_co2_kg": 62.925,
+    "attribution": "asset_degradation",
+    "phase_energy": {
+      "Preparation": 0.911,
+      "Granulation": 3.779,
+      "Drying": 10.086,
+      "Milling": 9.003,
+      "Blending": 4.593,
+      "Compression": 38.693,
+      "Coating": 6.73,
+      "Quality_Testing": 2.943
+    }
+  },
+  "fleet_summary": {
+    "total_batches": 60,
+    "avg_energy_kwh": 93.369,
+    "std_energy_kwh": 11.953,
+    "min_energy_kwh": 73.08,
+    "max_energy_kwh": 117.55,
+    "avg_co2_kg": 76.563,
+    "batches_with_anomalies": 60
+  }
+}

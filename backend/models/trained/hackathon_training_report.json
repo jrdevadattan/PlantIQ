@@ -1,0 +1,129 @@
+{
+  "project": "PlantIQ \u2014 AI-Driven Manufacturing Intelligence",
+  "track": "Track A: Predictive Modelling Specialization",
+  "data_source": "hackathon_problem_statement",
+  "golden_batch": "T001",
+  "prediction_results": {
+    "per_target": {
+      "Moisture_Content": {
+        "mae": 0.0571,
+        "rmse": 0.0806,
+        "mape": 3.0,
+        "r2": 0.9869,
+        "accuracy_pct": 97.0
+      },
+      "Tablet_Weight": {
+        "mae": 0.6017,
+        "rmse": 0.7374,
+        "mape": 0.3,
+        "r2": 0.9149,
+        "accuracy_pct": 99.7
+      },
+      "Hardness": {
+        "mae": 1.8063,
+        "rmse": 2.1728,
+        "mape": 2.01,
+        "r2": 0.9895,
+        "accuracy_pct": 97.99
+      },
+      "Friability": {
+        "mae": 0.0234,
+        "rmse": 0.0312,
+        "mape": 3.3,
+        "r2": 0.9875,
+        "accuracy_pct": 96.7
+      },
+      "Disintegration_Time": {
+        "mae": 0.3626,
+        "rmse": 0.5884,
+        "mape": 3.59,
+        "r2": 0.9772,
+        "accuracy_pct": 96.41
+      },
+      "Dissolution_Rate": {
+        "mae": 0.4143,
+        "rmse": 0.6476,
+        "mape": 0.47,
+        "r2": 0.9781,
+        "accuracy_pct": 99.53
+      },
+      "Content_Uniformity": {
+        "mae": 0.4436,
+        "rmse": 0.5341,
+        "mape": 0.45,
+        "r2": 0.9775,
+        "accuracy_pct": 99.55
+      }
+    },
+    "overall": {
+      "avg_accuracy_pct": 98.13,
+      "avg_r2": 0.9731,
+      "meets_90pct_target": true
+    }
+  },
+  "energy_analysis": {
+    "golden_energy_kwh": 76.738,
+    "fleet_avg_energy_kwh": 93.369,
+    "batches_with_anomalies": 60
+  },
+  "models_trained": [
+    "XGBoost Multi-Target Predictor",
+    "Feature Scaler",
+    "Evaluation Report",
+    "Golden Signatures (T001 reference)",
+    "T001 Power Curve Reference",
+    "Energy Pattern Analysis",
+    "Fault Classifier",
+    "Adaptive Targets"
+  ],
+  "artifacts": [
+    {
+      "file": "hackathon_model.pkl",
+      "description": "XGBoost Multi-Target Predictor",
+      "exists": true,
+      "size_bytes": 2983310
+    },
+    {
+      "file": "hackathon_scaler.pkl",
+      "description": "Feature Scaler",
+      "exists": true,
+      "size_bytes": 951
+    },
+    {
+      "file": "hackathon_evaluation.json",
+      "description": "Evaluation Report",
+      "exists": true,
+      "size_bytes": 1888
+    },
+    {
+      "file": "golden_signatures.json",
+      "description": "Golden Signatures (T001 reference)",
+      "exists": true,
+      "size_bytes": 19577
+    },
+    {
+      "file": "golden_power_curve_T001.npy",
+      "description": "T001 Power Curve Reference",
+      "exists": true,
+      "size_bytes": 14528
+    },
+    {
+      "file": "energy_analysis_report.json",
+      "description": "Energy Pattern Analysis",
+      "exists": true,
+      "size_bytes": 12736
+    },
+    {
+      "file": "fault_classifier.pkl",
+      "description": "Fault Classifier",
+      "exists": true,
+      "size_bytes": 219481
+    },
+    {
+      "file": "adaptive_targets.json",
+      "description": "Adaptive Targets",
+      "exists": true,
+      "size_bytes": 1590
+    }
+  ]
+}
