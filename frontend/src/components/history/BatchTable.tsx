@@ -73,7 +73,7 @@ export function BatchTable() {
     let cancelled = false;
     async function loadBatches() {
       try {
-        const data = await fetchRecentBatches(100);
+        const data = await fetchRecentBatches(50);
         if (!cancelled) {
           // Map API shape → BatchRecord shape
           const mapped: BatchRecord[] = data.map((b: DashboardBatch) => ({

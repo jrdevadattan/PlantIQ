@@ -5,6 +5,7 @@
 # --- Core Data ---
 numpy
 pandas
+openpyxl
 
 # --- ML & AI ---
 xgboost
@@ -19,6 +20,8 @@ uvicorn
 pydantic
 websockets
 python-multipart
+httpx
+requests
 
 # --- Database ---
 sqlalchemy

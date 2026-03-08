@@ -3,7 +3,7 @@ PlantIQ — Feedback Loop Engine
 ==================================
 Component 1.5 — Rolling accuracy tracking with drift detection.
 
-Maintains a 30-day rolling MAPE for each of the five prediction targets.
+Maintains a 30-day rolling MAPE for each of the four production targets.
 If any target exceeds 10% MAPE, an alert fires.
 If 10 consecutive batches exceed the threshold, a retrain flag is set.
 """

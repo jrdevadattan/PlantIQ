@@ -286,7 +286,8 @@ export async function fetchEnergyDaily(days = 7): Promise<DailyEnergyItem[]> {
 }
 
 export async function fetchRecentBatches(limit = 6): Promise<DashboardBatch[]> {
-  return apiFetch<DashboardBatch[]>(`/dashboard/recent-batches?limit=${limit}`);
+  const safeLimit = Math.min(Math.max(limit, 1), 50);
+  return apiFetch<DashboardBatch[]>(`/dashboard/recent-batches?limit=${safeLimit}`);
 }
 
 export async function fetchShiftPerformance(): Promise<ShiftPerformanceData[]> {
@@ -313,7 +314,31 @@ export interface AlertRecord {
 }
 
 export async function fetchAlerts(limit = 50): Promise<AlertRecord[]> {
-  return apiFetch<AlertRecord[]>(`/alerts?limit=${limit}`);
+  const safeLimit = Math.min(Math.max(limit, 1), 200);
+  const raw = await apiFetch<
+    AlertRecord[] | { count: number; alerts: Array<Record<string, unknown>> }
+  >(`/alerts?limit=${safeLimit}`);
+
+  if (Array.isArray(raw)) {
+    return raw;
+  }
+
+  const alerts = Array.isArray(raw?.alerts) ? raw.alerts : [];
+  return alerts.map((a) => {
+    const state = String(a.state ?? "fired");
+    return {
+      id: String(a.alert_id ?? a.id ?? ""),
+      batch_id: String(a.batch_id ?? ""),
+      severity: String(a.severity ?? "WATCH"),
+      alert_type: String(a.alert_type ?? "anomaly"),
+      message: String(a.message ?? ""),
+      root_cause: String(a.technical_detail ?? ""),
+      recommended_action: String(a.recommended_action ?? ""),
+      estimated_saving_kwh: Number(a.estimated_saving_kwh ?? 0),
+      timestamp: String(a.fired_at ?? a.timestamp ?? new Date().toISOString()),
+      acknowledged: ["acknowledged", "acted_upon", "resolved"].includes(state),
+    };
+  });
 }
 
 // ── Recommendations ─────────────────────────────────────────
@@ -417,5 +442,47 @@ export async function fetchCostConfig(): Promise<CostConfig> {
 
 export async function fetchComplianceReport(): Promise<ComplianceReport> {
   return apiFetch<ComplianceReport>("/targets/report");
+}
+
+// ── Pharma Core Mode (README-aligned) ─────────────────────
+
+export interface PharmaCorePrediction {
+  hardness: number;
+  friability: number;
+  dissolution_rate: number;
+  content_uniformity: number;
+  energy_kwh: number;
+}
+
+export interface PharmaCorePredictionResponse {
+  status: string;
+  core_predictions: PharmaCorePrediction;
+}
+
+export interface PharmaCoreParams {
+  granulation_time: number;
+  binder_amount: number;
+  drying_temp: number;
+  drying_time: number;
+  compression_force: number;
+  machine_speed: number;
+  lubricant_conc: number;
+}
+
+export async function predictPharmaCore(
+  params: PharmaCoreParams,
+): Promise<PharmaCorePredictionResponse> {
+  return apiFetch<PharmaCorePredictionResponse>("/hackathon/predict-core", {
+    method: "POST",
+    body: JSON.stringify(params),
+  });
+}
+
+// ── Live WebSocket Channel ────────────────────────────────
+
+export function connectLiveBatch(batchId: string): WebSocket {
+  const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+  const host = window.location.host;
+  return new WebSocket(`${protocol}://${host}/live/${encodeURIComponent(batchId)}`);
 }
 

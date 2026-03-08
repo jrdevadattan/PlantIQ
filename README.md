@@ -8,7 +8,7 @@
 
 ## What π0 Is
 
-π0 is an AI-powered batch intelligence system built for pharmaceutical tablet manufacturing. Before a batch begins, an operator sets seven process parameters — granulation time, binder amount, drying temperature, drying time, compression force, machine speed, and lubricant concentration. π0 takes those seven numbers and simultaneously predicts five outcomes: tablet hardness, friability, dissolution rate, content uniformity, and energy consumption in kilowatt-hours.
+π0 is an AI-powered batch intelligence system built for pharmaceutical tablet manufacturing. Before a batch begins, an operator sets seven process parameters — granulation time, binder amount, drying temperature, drying time, compression force, machine speed, and lubricant concentration. π0 supports two prediction modes: production mode predicts quality_score, yield_pct, performance_pct, and energy_kwh; pharma core mode predicts tablet hardness, friability, dissolution rate, content uniformity, and energy consumption in kilowatt-hours.
 
 It does not stop at prediction. As the batch runs, π0 monitors the machine's power consumption curve in real time, detects when something is deviating from the golden signature of a healthy batch, and fires a structured alert that tells the operator exactly what is wrong, which machine to walk to, and what physical action to take. Every prediction is explained in plain language with specific attribution to individual parameters. Every decision, every alert, every operator acknowledgement, and every model version is stored permanently and is retrievable in full at any future point.
 
@@ -204,7 +204,7 @@ Five components. Each does exactly one thing. All outputs flow into Layer 3 for 
 
 **One job:** Take ten features and produce five simultaneous predictions, each with a confidence score.
 
-The predictor runs five XGBoost models simultaneously through a single interface. Each model is trained independently to predict one target. Five separate models rather than one combined model exists because the factors driving hardness are not the same as the factors driving energy. Compression force dominates hardness prediction. Drying time and drying temperature dominate energy prediction. A single model optimising for all five simultaneously would make compromises that reduce accuracy on every target. Five focused models each achieve better accuracy on their individual target.
+The predictor stack uses parallel target-specific models through a single interface. In production mode, four models run simultaneously for quality_score, yield_pct, performance_pct, and energy_kwh. In pharma core mode, the system exposes hardness, friability, dissolution rate, content uniformity, and energy via the hackathon prediction pipeline. Separate models rather than one combined model exist because the factors driving hardness are not the same as the factors driving energy. Compression force dominates hardness prediction. Drying time and drying temperature dominate energy prediction. A single model optimising all targets simultaneously would make compromises that reduce accuracy on each target.
 
 Confidence is computed by comparing the incoming input vector to the statistical distribution of the training data. Inputs well inside the historical range receive high confidence above 0.85. Inputs at the edge receive medium confidence between 0.60 and 0.85. Inputs outside the training range receive low confidence below 0.60 and trigger a distribution warning that is stored with the prediction.
 

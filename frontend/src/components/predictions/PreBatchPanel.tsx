@@ -100,6 +100,11 @@ export function PreBatchPanel({ onPrediction, onWhatIfToggle }: PreBatchPanelPro
   const debouncedForm = useDebounce(formData, 400);
   const hasMounted = useRef(false);
 
+  // Notify parent only after local mode state is committed.
+  useEffect(() => {
+    onWhatIfToggle?.(whatIfMode);
+  }, [whatIfMode, onWhatIfToggle]);
+
   /* ── What-If auto-predict effect ─────────────────────── */
   useEffect(() => {
     if (!whatIfMode) return;
@@ -241,13 +246,7 @@ export function PreBatchPanel({ onPrediction, onWhatIfToggle }: PreBatchPanelPro
 
             {/* What-If Mode Toggle */}
             <button
-              onClick={() => {
-                setWhatIfMode(prev => {
-                  const next = !prev;
-                  onWhatIfToggle?.(next);
-                  return next;
-                });
-              }}
+              onClick={() => setWhatIfMode((prev) => !prev)}
               className={cn(
                 "relative w-11 h-6 rounded-full transition-colors duration-200",
                 whatIfMode ? "bg-violet-500" : "bg-slate-200"

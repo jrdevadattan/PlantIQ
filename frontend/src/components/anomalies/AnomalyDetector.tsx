@@ -71,6 +71,8 @@ export function AnomalyDetector() {
   const [apiResult, setApiResult] = useState<AnomalyDetectResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [operatorDecision, setOperatorDecision] = useState<"approved" | "dismissed" | null>(null);
+  const [decisionAt, setDecisionAt] = useState<string | null>(null);
 
   // Generate power curve for visualization (client-side)
   const { combined, residuals, rawReadings } = useMemo(() => {
@@ -100,6 +102,8 @@ export function AnomalyDetector() {
   const analyze = useCallback(async () => {
     setLoading(true);
     setError(null);
+    setOperatorDecision(null);
+    setDecisionAt(null);
 
     try {
       const batchId = `anomaly-${selectedFault}-${Date.now()}`;
@@ -126,6 +130,16 @@ export function AnomalyDetector() {
   const threshold = apiResult?.threshold ?? 0.30;
 
   const colors = severityColors[severity] ?? severityColors.NORMAL;
+
+  const approveAction = useCallback(() => {
+    setOperatorDecision("approved");
+    setDecisionAt(new Date().toLocaleTimeString());
+  }, []);
+
+  const dismissAction = useCallback(() => {
+    setOperatorDecision("dismissed");
+    setDecisionAt(new Date().toLocaleTimeString());
+  }, []);
 
   return (
     <div className="space-y-5">
@@ -256,13 +270,38 @@ export function AnomalyDetector() {
               )}
 
               <div className="flex gap-2 mt-3">
-                <button className="px-3 py-1.5 bg-teal-600 text-white text-[11px] font-bold rounded-lg hover:bg-teal-700 transition-colors">
+                <button
+                  onClick={approveAction}
+                  disabled={operatorDecision !== null}
+                  className={cn(
+                    "px-3 py-1.5 text-[11px] font-bold rounded-lg transition-colors",
+                    operatorDecision === null
+                      ? "bg-teal-600 text-white hover:bg-teal-700"
+                      : "bg-teal-200 text-teal-800 cursor-not-allowed"
+                  )}
+                >
                   Approve Action
                 </button>
-                <button className="px-3 py-1.5 bg-white text-slate-500 text-[11px] font-bold rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors">
+                <button
+                  onClick={dismissAction}
+                  disabled={operatorDecision !== null}
+                  className={cn(
+                    "px-3 py-1.5 text-[11px] font-bold rounded-lg border transition-colors",
+                    operatorDecision === null
+                      ? "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                      : "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
+                  )}
+                >
                   Dismiss
                 </button>
               </div>
+
+              {operatorDecision && (
+                <p className="mt-2 text-[11px] text-slate-500">
+                  {operatorDecision === "approved" ? "Action approved" : "Action dismissed"}
+                  {decisionAt ? ` at ${decisionAt}` : ""}.
+                </p>
+              )}
             </div>
           )}
         </div>

@@ -269,8 +269,8 @@ class FeedbackMetric(Base):
     """Rolling accuracy metrics per prediction target.
 
     Per README Component 1.5 — Feedback Loop Engine:
-      "The engine maintains a 30-day rolling MAPE for each of the
-       five prediction targets. If any target exceeds 10% MAPE,
+    "The engine maintains a 30-day rolling MAPE for each of the
+     four production prediction targets. If any target exceeds 10% MAPE,
        an alert goes to the data team."
     """
     __tablename__ = "feedback_metrics"
