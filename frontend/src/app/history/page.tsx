@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import {
   TbChartBar,
@@ -8,7 +9,8 @@ import {
   TbAlertTriangle,
 } from "react-icons/tb";
 import { StatCard } from "@/components/dashboard/StatCard";
-import { recentBatches } from "@/lib/mockData";
+import { fetchRecentBatches, type DashboardBatch } from "@/lib/api";
+import { recentBatches as mockBatches } from "@/lib/mockData";
 
 const BatchTable = dynamic(
   () => import("@/components/history/BatchTable").then(m => m.BatchTable),
@@ -16,7 +18,27 @@ const BatchTable = dynamic(
 );
 
 export default function HistoryPage() {
-  const completedBatches = recentBatches.filter(b => b.status === "completed");
+  const [batches, setBatches] = useState<DashboardBatch[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadBatches() {
+      try {
+        const data = await fetchRecentBatches(200);
+        if (!cancelled) setBatches(data);
+      } catch (err) {
+        console.error("[HistoryPage] API fallback to mock data:", err);
+        if (!cancelled) setBatches(mockBatches as unknown as DashboardBatch[]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    loadBatches();
+    return () => { cancelled = true; };
+  }, []);
+
+  const completedBatches = batches.filter(b => b.status === "completed");
   const avgQuality = completedBatches.length
     ? (completedBatches.reduce((s, b) => s + b.qualityScore, 0) / completedBatches.length).toFixed(1)
     : "—";
@@ -26,7 +48,7 @@ export default function HistoryPage() {
   const avgYield = completedBatches.length
     ? (completedBatches.reduce((s, b) => s + b.yieldPct, 0) / completedBatches.length).toFixed(1)
     : "—";
-  const anomalyCount = recentBatches.filter(b => b.anomalyScore > 0.3).length;
+  const anomalyCount = batches.filter(b => b.anomalyScore > 0.3).length;
 
   return (
     <div className="p-5 space-y-5 max-w-[1600px] mx-auto">
@@ -41,7 +63,7 @@ export default function HistoryPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard
           label="Avg Quality"
-          value={avgQuality}
+          value={loading ? "—" : avgQuality}
           unit="%"
           icon={TbChartBar}
           variant="teal"
@@ -49,7 +71,7 @@ export default function HistoryPage() {
         />
         <StatCard
           label="Avg Energy"
-          value={avgEnergy}
+          value={loading ? "—" : avgEnergy}
           unit="kWh"
           icon={TbBolt}
           variant="amber"
@@ -57,7 +79,7 @@ export default function HistoryPage() {
         />
         <StatCard
           label="Avg Yield"
-          value={avgYield}
+          value={loading ? "—" : avgYield}
           unit="%"
           icon={TbTrendingUp}
           variant="emerald"
@@ -65,10 +87,10 @@ export default function HistoryPage() {
         />
         <StatCard
           label="Anomaly Events"
-          value={anomalyCount}
+          value={loading ? "—" : anomalyCount}
           icon={TbAlertTriangle}
           variant="red"
-          subValue={`of ${recentBatches.length} batches`}
+          subValue={loading ? "" : `of ${batches.length} batches`}
           tooltip="Batches with anomaly score above threshold"
         />
       </div>

@@ -181,7 +181,7 @@ export function RecentBatches() {
                   </td>
                   <td className="p-3">
                     <div className="flex items-center gap-2">
-                      <span className={`status-dot ${anomalyLevel}`} />
+                      <span className={cn("status-dot", anomalyLevel)} />
                       <span className="text-[11px] font-mono text-slate-500">
                         {batch.anomalyScore > 0
                           ? batch.anomalyScore.toFixed(2)

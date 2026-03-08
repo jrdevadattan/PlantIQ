@@ -215,7 +215,7 @@ export function LiveMonitor() {
           <div>
             <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wide">Anomaly Score</p>
             <div className="flex items-center gap-2">
-              <span className={`status-dot ${isAnomaly ? "danger" : "active"}`} />
+              <span className={cn("status-dot", isAnomaly ? "danger" : "active")} />
               <p className={cn("text-sm font-mono font-bold", isAnomaly ? "text-red-600" : "text-emerald-600")}>
                 {anomalyScore.toFixed(2)}
               </p>

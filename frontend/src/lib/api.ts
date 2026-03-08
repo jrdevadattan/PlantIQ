@@ -296,3 +296,126 @@ export async function fetchShiftPerformance(): Promise<ShiftPerformanceData[]> {
 export async function fetchLatestBatch(): Promise<LatestBatch> {
   return apiFetch<LatestBatch>("/dashboard/latest-batch");
 }
+
+// ── Alerts ──────────────────────────────────────────────────
+
+export interface AlertRecord {
+  id: string;
+  batch_id: string;
+  severity: string;
+  alert_type: string;
+  message: string;
+  root_cause: string;
+  recommended_action: string;
+  estimated_saving_kwh: number;
+  timestamp: string;
+  acknowledged: boolean;
+}
+
+export async function fetchAlerts(limit = 50): Promise<AlertRecord[]> {
+  return apiFetch<AlertRecord[]>(`/alerts?limit=${limit}`);
+}
+
+// ── Recommendations ─────────────────────────────────────────
+
+export interface RecommendationItem {
+  rank: number;
+  parameter: string;
+  current_value: number;
+  recommended_value: number;
+  adjustment: number;
+  direction: string;
+  machine: string;
+  control: string;
+  instruction: string;
+  estimated_energy_saving_kwh: number;
+  estimated_quality_impact_pct: number;
+  estimated_yield_impact_pct: number;
+  response_time_min: number;
+  timing_note: string;
+  shap_contribution: number;
+  shap_direction: string;
+  within_safe_range: boolean;
+  safety_note: string;
+}
+
+export interface RecommendationResponse {
+  batch_id: string;
+  target: string;
+  recommendations: RecommendationItem[];
+  summary: string;
+  total_estimated_saving_kwh: number;
+}
+
+export async function generateRecommendations(
+  batchId: string,
+  inputParams: BatchPredictionParams,
+  shapContributions: Array<{ feature: string; contribution: number; direction: string }>,
+  target: string = "energy_kwh",
+): Promise<RecommendationResponse> {
+  return apiFetch<RecommendationResponse>("/recommend/generate", {
+    method: "POST",
+    body: JSON.stringify({
+      batch_id: batchId,
+      input_params: inputParams,
+      shap_contributions: shapContributions,
+      target,
+    }),
+  });
+}
+
+// ── Cost Translation ────────────────────────────────────────
+
+export interface CostTranslation {
+  predicted_cost_inr: number;
+  target_cost_inr: number;
+  cost_variance_inr: number;
+  monthly_projection_inr: number;
+  co2_kg: number;
+  co2_status: string;
+  summary: string;
+}
+
+// ── Management Dashboard ────────────────────────────────────
+
+export interface CostConfig {
+  tariff_inr_per_kwh: number;
+  co2_factor_kg_per_kwh: number;
+  energy_target_kwh: number;
+  co2_budget_kg: number;
+  batches_per_day: number;
+  operating_days_per_month: number;
+  optimization_headroom_pct: number;
+}
+
+export interface ComplianceReport {
+  total_batches: number;
+  energy_stats: {
+    mean_kwh: number;
+    median_kwh: number;
+    total_kwh: number;
+    trend: string;
+  };
+  carbon_stats: {
+    total_kg: number;
+    mean_kg_per_batch: number;
+  };
+  compliance: {
+    on_track_pct: number;
+    caution_pct: number;
+    exceeded_pct: number;
+  };
+  cumulative_savings: {
+    energy_kwh: number;
+    co2_kg: number;
+  };
+}
+
+export async function fetchCostConfig(): Promise<CostConfig> {
+  return apiFetch<CostConfig>("/cost/config");
+}
+
+export async function fetchComplianceReport(): Promise<ComplianceReport> {
+  return apiFetch<ComplianceReport>("/targets/report");
+}
+

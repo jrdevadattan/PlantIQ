@@ -177,10 +177,16 @@ def _load_models():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application lifespan — loads models on startup."""
+    """Application lifespan — loads models on startup, initializes database."""
     logger.info("=" * 60)
     logger.info("PlantIQ API starting up...")
     logger.info("=" * 60)
+
+    # ── Initialize SQLite database ───────────────────────
+    logger.info("Initializing database...")
+    from database import init_db
+    init_db()
+    logger.info("Database initialized (SQLite — plantiq.db)")
 
     t_start = time.time()
     _load_models()
@@ -229,6 +235,9 @@ from api.routes.golden_signature import router as golden_sig_router
 from api.routes.targets import router as targets_router
 from api.routes.hackathon import router as hackathon_router
 from api.routes.dashboard import router as dashboard_router
+from api.routes.cost import router as cost_router
+from api.routes.audit import router as audit_router
+from api.routes.recommend import router as recommend_router
 
 app.include_router(health_router)
 app.include_router(predict_router)
@@ -239,6 +248,9 @@ app.include_router(golden_sig_router)
 app.include_router(targets_router)
 app.include_router(hackathon_router)
 app.include_router(dashboard_router)
+app.include_router(cost_router)
+app.include_router(audit_router)
+app.include_router(recommend_router)
 
 
 # ── Root redirect to docs ────────────────────────────────────

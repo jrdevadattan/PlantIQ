@@ -1,1594 +1,657 @@
-# 🏭 AI-Driven Manufacturing Intelligence
-## Track A - Predictive Modelling Specialization
+# π0 — Pharmaceutical Intelligence Operations Platform
 
-> **Adaptive Multi-Objective Optimization of Industrial Batch Processes and Energy Pattern Analytics for Asset Reliability, Process Optimization, and Carbon Management**
+### *Every prediction sourced. Every decision stored. Every operator informed. Every batch understood.*
 
----
-
-<div align="center">
-
-![Python](https://img.shields.io/badge/Python-3.10+-blue)
-![XGBoost](https://img.shields.io/badge/XGBoost-2.0.3-orange)
-![PyTorch](https://img.shields.io/badge/PyTorch-2.3.0-red)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.111-green)
-![React](https://img.shields.io/badge/React-18.3-cyan)
-![SHAP](https://img.shields.io/badge/SHAP-0.45-purple)
-![License](https://img.shields.io/badge/License-MIT-yellow)
-
-</div>
+> **Track A — Predictive Modelling** | Pharmaceutical Tablet Manufacturing | AI-Driven Manufacturing Intelligence
 
 ---
 
-## 📖 Table of Contents
+## What π0 Is
 
-1. [Project Overview](#-project-overview)
-2. [Problem Statement — Full Coverage Map](#-problem-statement--full-coverage-map)
-3. [The Core Idea — In Plain English](#-the-core-idea--in-plain-english)
-4. [System Architecture](#-system-architecture)
-5. [Data Architecture](#-data-architecture)
-6. [AI & ML Components](#-ai--ml-components)
-7. [Feature Tier List](#-feature-tier-list)
-8. [Tech Stack — Complete](#-tech-stack--complete)
-9. [Project Structure](#-project-structure)
-10. [Setup & Installation](#-setup--installation)
-11. [Running the Project](#-running-the-project)
-12. [API Reference](#-api-reference)
-13. [Dashboard Guide](#-dashboard-guide)
-14. [Model Performance & Validation](#-model-performance--validation)
-15. [Demo Scenario](#-demo-scenario)
-16. [Future Scope](#-future-scope)
-17. [Evaluation Criteria Mapping](#-evaluation-criteria-mapping)
-18. [Team](#-team)
+π0 is an AI-powered batch intelligence system built for pharmaceutical tablet manufacturing. Before a batch begins, an operator sets seven process parameters — granulation time, binder amount, drying temperature, drying time, compression force, machine speed, and lubricant concentration. π0 takes those seven numbers and simultaneously predicts five outcomes: tablet hardness, friability, dissolution rate, content uniformity, and energy consumption in kilowatt-hours.
+
+It does not stop at prediction. As the batch runs, π0 monitors the machine's power consumption curve in real time, detects when something is deviating from the golden signature of a healthy batch, and fires a structured alert that tells the operator exactly what is wrong, which machine to walk to, and what physical action to take. Every prediction is explained in plain language with specific attribution to individual parameters. Every decision, every alert, every operator acknowledgement, and every model version is stored permanently and is retrievable in full at any future point.
+
+π0 is designed to be read and used by three completely different people simultaneously — the floor operator who needs three numbers and one colour, the engineer who needs SHAP waterfall charts and confidence intervals, and the plant manager who needs cost in rupees and a weekly energy trend.
 
 ---
 
-## 🎯 Project Overview
+## The Problem π0 Solves
 
-Modern manufacturing facilities operate under intense pressure — reduce energy consumption, minimize carbon emissions, maintain product quality, maximize yield, and keep machines running. These objectives are deeply interconnected and often conflict. Improving one frequently comes at the cost of another.
+Pharmaceutical tablet manufacturing runs in batches. Each batch takes between 3 and 4 hours from preparation to quality testing. Current manufacturing systems evaluate batch outcomes only after the batch completes — meaning every problem is discovered after it has already happened, after the energy has already been wasted, after the tablets have already been made incorrectly.
 
-The fundamental problem is not a lack of data. Factories generate enormous amounts of sensor data every second. The problem is **the inability to act on that data in time.** By the time a shift engineer reviews the morning's production logs, the energy waste has already happened. The bad batch has already been made. The machine has already degraded further.
+**Batch-level variability** is the first problem. Energy usage and product quality fluctuate significantly across batches because of varying machine settings, material characteristics, and operator decisions. There is currently no way to predict, before a batch starts, whether the settings chosen will produce quality tablets at reasonable energy cost.
 
-**This project builds the AI system that closes that gap.**
+**Post-process discovery** is the second problem. When a batch fails quality control, the energy has already been consumed, the materials have already been used, and the production time has already been lost. There is no mechanism to intervene while the batch is running.
 
-It is a real-time manufacturing intelligence platform that:
+**Invisible explanations** are the third problem. Even when predictions exist, they are black boxes. An operator who is told "energy will be high" cannot act on that information without knowing which parameter is causing the high energy and what to change.
 
-- **Predicts** Quality, Yield, Performance, and Energy consumption simultaneously — before the batch ends, while it can still be influenced
-- **Detects** anomalies in power consumption patterns that reveal equipment degradation and process drift — distinguishing a machine problem from a process problem from a raw material problem
-- **Explains** every single prediction in plain English, showing operators exactly which parameter drove which outcome and by how much
-- **Forecasts** in real time — updating predictions every 30 seconds as the batch progresses and new sensor data arrives
-- **Supports** operators with ranked, specific, actionable recommendations tied to measurable impact estimates
+**Broken feedback** is the fourth problem. Models trained on historical data become less accurate over time as machine conditions change, materials shift, and processes evolve. Without a mechanism to detect and correct this drift, the system becomes silently wrong.
+
+π0 addresses all four problems through its five-layer architecture.
 
 ---
 
-## 📋 Problem Statement — Full Coverage Map
+## Table of Contents
 
-Every requirement from the original problem statement is addressed. This section shows exactly how.
+1. [The Four Rules That Govern Every Decision](#1-the-four-rules)
+2. [The Complete Data Journey](#2-the-complete-data-journey)
+3. [System Architecture — Five Layers](#3-system-architecture)
+4. [Layer 1 — Data Foundation](#4-layer-1--data-foundation)
+5. [Layer 2 — The Intelligence Core](#5-layer-2--the-intelligence-core)
+6. [Layer 3 — The Decision Engine](#6-layer-3--the-decision-engine)
+7. [Layer 4 — The API Bridge](#7-layer-4--the-api-bridge)
+8. [Layer 5 — The Three Dashboards](#8-layer-5--the-three-dashboards)
+9. [The Feedback Loop](#9-the-feedback-loop)
+10. [The Audit Architecture](#10-the-audit-architecture)
+11. [The Alert and Acknowledgement System](#11-the-alert-and-acknowledgement-system)
+12. [The Golden Batch System](#12-the-golden-batch-system)
+13. [Technology Stack — Explained from First Principles](#13-technology-stack)
+14. [Hackathon Build vs Production Architecture](#14-hackathon-vs-production)
+15. [Gap Audit — What π0 Cannot Do and Why](#15-gap-audit)
+16. [Future Scope — Eight Features with Technical Path](#16-future-scope)
+17. [The One Question π0 Can Always Answer](#17-the-one-question)
 
-### Core Challenge Coverage
+---
 
-| Problem Statement Requirement | Our Implementation | Location in Code |
+## 1. The Four Rules
+
+Every architectural decision in π0 was made by applying four rules. Knowing these rules explains why every component exists and why it is built the way it is.
+
+---
+
+**Rule 1 — Data Has a Birthplace**
+
+Every number in π0 knows where it came from. A prediction does not simply say "hardness: 91.4 Newton." It says: that prediction was produced by model version 3.1.2, trained on 287 batches, using these ten input features, at this timestamp, with this SHAP breakdown showing which feature contributed how much. No number exists without a provenance record.
+
+This rule exists because when something goes wrong — a batch fails, a prediction is way off, an auditor asks questions — you need to be able to trace the number back to its origin without ambiguity. A system where numbers appear without traceable sources is a system you cannot trust and cannot fix.
+
+---
+
+**Rule 2 — Every Component Has One Job**
+
+The prediction model predicts. It does not alert. The alert engine fires alerts. It does not store them. The storage layer stores. It does not display. The dashboard displays. It does not compute. This principle is called Single Responsibility.
+
+The reason it matters is debuggability. When something breaks in π0, you know exactly which component broke. You fix that one thing without touching anything else. A component that does two jobs fails in two different ways and breaks two other components when it does.
+
+---
+
+**Rule 3 — Design for Failure First**
+
+π0 assumes every component will fail. The sensor feed drops. The model server crashes. The operator is away from the screen when an alert fires. The database write fails mid-record. Every component in π0 has a defined answer to the question: what happens to the rest of the system when I fail?
+
+A system that only works when everything works is not designed for a real factory. A real factory has network interruptions, power fluctuations, machine restarts, and human error. π0 accounts for all of these explicitly.
+
+---
+
+**Rule 4 — The Loop Must Close**
+
+A prediction system that does not learn from its predictions is not intelligent. It is a calculator with a shelf life. π0 closes the loop: predictions are made, batches complete, actual quality measurements are recorded, prediction errors are computed, model accuracy is tracked, and models are retrained when accuracy degrades. This loop is an architectural requirement, not an optional feature.
+
+---
+
+## 2. The Complete Data Journey
+
+Before describing individual components, it is essential to understand the complete path a piece of data travels from the moment an operator enters batch parameters to the moment a decision is permanently stored.
+
+Every box in this journey is a separate component. Every arrow is a defined data contract — a formal agreement about exactly what format data arrives in and exactly what format it leaves in. Nothing is assumed. Nothing is passed informally.
+
+The journey begins when an operator enters seven process parameters. The **Input Validator** receives those seven numbers and applies four sequential checks: are all fields present, are they numbers, are they within physical machine limits, and are they within the model's training range. The first three failures stop the pipeline with a specific error message. The fourth is a warning — prediction proceeds with reduced confidence attached.
+
+The validated parameters pass to the **Feature Engineer**, which computes three derived features from the seven inputs, producing a ten-feature vector where every derived value is tagged with its formula.
+
+The ten features enter the **Multi-Target Predictor**, which runs five models simultaneously and produces five predictions, each with a confidence score and a model version record.
+
+The predictions pass to the **SHAP Explainer**, which produces a ranked, quantified plain-English explanation of which parameter drove each output and by how much.
+
+The explained predictions pass to the **Cost Translator**, which converts the energy prediction into rupees and projects monthly cost at the current rate.
+
+The complete record is written permanently to the **Prediction Store** — immutable after the batch closes.
+
+The batch then runs. The **Anomaly Detector** reads live power data every 30 seconds. The **Sliding Window Forecaster** updates the energy forecast continuously. If either exceeds a threshold, the **Alert Engine** fires a structured alert. Every alert lifecycle event is stored by the **Acknowledgement System**.
+
+After the batch, QC enters actual measurements. The **Outcome Recorder** computes prediction error and updates the **Drift Detector's** rolling accuracy. If accuracy has degraded, a retraining flag is raised.
+
+---
+
+## 3. System Architecture
+
+π0 is organised in five layers. Data flows downward from Layer 5, where the operator interacts, through Layers 4 and 3 where decisions are made, into Layer 2 where intelligence is applied, and down to Layer 1 where data is stored and managed.
+
+```
+┌══════════════════════════════════════════════════════════════════╗
+║  LAYER 5 — USER LAYER                                            ║
+║  Three dashboards: Operator View · Technical View · Manager View ║
+╠══════════════════════════════════════════════════════════════════╣
+║  LAYER 4 — API BRIDGE LAYER                                      ║
+║  FastAPI: the translator between Python models and browser UI    ║
+╠══════════════════════════════════════════════════════════════════╣
+║  LAYER 3 — DECISION ENGINE LAYER                                 ║
+║  Cost Translator · Alert Engine · Acknowledgement System         ║
+║  Golden Batch Manager · Recommendation Engine                    ║
+╠══════════════════════════════════════════════════════════════════╣
+║  LAYER 2 — INTELLIGENCE CORE LAYER                               ║
+║  Multi-Target Predictor · SHAP Explainer · Anomaly Detector      ║
+║  Sliding Window Forecaster · Confidence Scorer                   ║
+╠══════════════════════════════════════════════════════════════════╣
+║  LAYER 1 — DATA FOUNDATION LAYER                                 ║
+║  Input Validator · Feature Engineer · Prediction Store           ║
+║  Model Registry · Feedback Loop Engine · Audit Store             ║
+╚══════════════════════════════════════════════════════════════════╝
+```
+
+---
+
+## 4. Layer 1 — Data Foundation
+
+Layer 1 is invisible to the operator. It handles everything that happens before intelligence is applied to data and everything that happens after a decision is made.
+
+---
+
+### Component 1.1 — The Input Validator
+
+**One job:** Accept a set of batch parameters and either pass them as clean or reject them with a specific, actionable error message.
+
+The validator applies four checks in sequence. Presence confirms all seven required fields exist. Type confirms every value is a number. Physical bounds confirm every value falls within the possible operating range of the machine — drying temperature, for example, cannot be below 35°C or above 85°C because those are the dryer's physical limits. The training distribution check confirms whether the value falls within what the model was trained on. The first three failures are hard stops. The fourth is a warning that reduces the prediction's confidence score.
+
+This distinction is architecturally important. A physically impossible value indicates a data entry error and must be stopped. A value outside the training range may be a legitimate new operating condition — the system allows it to proceed but communicates honestly that its confidence for that setting is lower.
+
+---
+
+### Component 1.2 — The Feature Engineer
+
+**One job:** Transform seven validated raw inputs into ten features by computing three derived values, each tagged with its formula and the source values used.
+
+The three derived features capture physical relationships that the raw inputs cannot express individually. Temperature deviation captures how far drying temperature sits from the historical mean, because deviation from centre is more predictive than absolute temperature. Compression intensity captures the interaction between compression force and machine speed, because the same force at different speeds produces tablets with different mechanical properties. Drying efficiency ratio captures the relationship between temperature and time in the drying phase, because high temperature for short time and low temperature for long time have different effects on final moisture content.
+
+Every derived feature is stored alongside its formula and the exact values used. Six months later, if a prediction is questioned, every input can be traced to its exact computation.
+
+---
+
+### Component 1.3 — The Prediction Store
+
+**One job:** Write every prediction permanently as an immutable record with complete provenance, and allow actual QC outcomes to be appended after the batch completes.
+
+A complete record contains the batch identity and timestamp, the model version and training data fingerprint, all ten input features, all five predictions with confidence scores, the complete SHAP breakdown across all five targets, the cost translation in rupees, any distribution warnings that were triggered, and placeholder fields for the actual QC outcomes that fill when QC completes their measurements.
+
+The record is immutable after the batch is marked closed. If a correction is ever needed, a correction record is created that references the original. The original is never modified. This is called append-only architecture, and it is the foundation of every pharmaceutical audit system.
+
+---
+
+### Component 1.4 — The Model Registry
+
+**One job:** Store every version of every model with complete metadata so that any historical prediction can be traced to the exact model that produced it.
+
+The registry stores the model version identifier, creation date, deployment date, retirement date, current status, the training data it was built on with row counts for real versus augmented data, performance metrics at training time for all five targets, and performance over its deployment lifetime including running average prediction error. Every prediction record in the Prediction Store contains the model version identifier. The registry turns that identifier into a complete description of how the model was built.
+
+---
+
+### Component 1.5 — The Feedback Loop Engine
+
+**One job:** Monitor the accuracy of predictions over time and flag when model performance has degraded to a point requiring retraining.
+
+The engine maintains a 30-day rolling Mean Absolute Percentage Error for each of the five prediction targets. After every batch outcome is recorded, the engine recomputes the rolling accuracy for all five targets. If any target exceeds ten percent MAPE, an alert goes to the data team. If degradation is sustained over ten consecutive batches, the model is flagged for retraining.
+
+---
+
+## 5. Layer 2 — The Intelligence Core
+
+Five components. Each does exactly one thing. All outputs flow into Layer 3 for decision-making.
+
+---
+
+### Component 2.1 — The Multi-Target Predictor
+
+**One job:** Take ten features and produce five simultaneous predictions, each with a confidence score.
+
+The predictor runs five XGBoost models simultaneously through a single interface. Each model is trained independently to predict one target. Five separate models rather than one combined model exists because the factors driving hardness are not the same as the factors driving energy. Compression force dominates hardness prediction. Drying time and drying temperature dominate energy prediction. A single model optimising for all five simultaneously would make compromises that reduce accuracy on every target. Five focused models each achieve better accuracy on their individual target.
+
+Confidence is computed by comparing the incoming input vector to the statistical distribution of the training data. Inputs well inside the historical range receive high confidence above 0.85. Inputs at the edge receive medium confidence between 0.60 and 0.85. Inputs outside the training range receive low confidence below 0.60 and trigger a distribution warning that is stored with the prediction.
+
+---
+
+### Component 2.2 — The SHAP Explainer
+
+**One job:** Take a completed prediction and produce a ranked, quantified, plain-language explanation of which parameter drove each output and by how much.
+
+SHAP — SHapley Additive exPlanations — distributes a prediction across its contributing features using a mathematical method from cooperative game theory. The calculation determines how much of the deviation from the average prediction each of the ten features is responsible for, in the same way you might split a restaurant bill fairly among diners based on what each ordered.
+
+The explainer runs a TreeExplainer, which is a highly efficient algorithm built specifically for tree-based models like XGBoost. It produces fifty values per prediction — one for each combination of five targets and ten features. These values are translated into plain English by a formatting layer: compression force added 3.8 kilowatt-hours because it was set higher than usual; drying time saved 2.1 kilowatt-hours because it was shorter than usual.
+
+The SHAP output serves two purposes. First, it communicates to the operator why the system predicted what it predicted. Second, its output directly feeds the Recommendation Engine — the parameter with the highest positive SHAP contribution to energy overrun is the first parameter targeted for adjustment.
+
+---
+
+### Component 2.3 — The Power Curve Anomaly Detector
+
+**One job:** Read the live power consumption curve during a running batch and produce an anomaly score every 30 seconds. When the score crosses a threshold, classify the fault type and generate a recommendation.
+
+The anomaly detector uses an LSTM Autoencoder — a neural network that learned the shape of a normal pharmaceutical manufacturing power curve during training. During training, the model read examples of normal power curves and learned to compress them into a compact representation and then reconstruct them accurately. When it is good at this, it has learned what normal looks like.
+
+During a live batch, the model attempts to reconstruct the current power curve using that learned normal pattern. If the curve is normal, reconstruction is accurate. If the curve is deviating — bearing wear, wet material, calibration drift — reconstruction is inaccurate, and that reconstruction error is the anomaly score.
+
+The power curve has eight phases with distinct signatures. Preparation is idle at approximately 2 kilowatts. Milling has the highest vibration at approximately 8 millimetres per second and 36 kilowatts. Compression has the highest sustained power at approximately 45 kilowatts for 52 minutes, consuming 50 percent of the entire batch's energy.
+
+Three fault patterns are identifiable from the curve:
+
+| Fault | Where in Curve | Physical Cause | Recommended Action |
+|---|---|---|---|
+| Bearing Wear | Milling — gradually rising vibration across batches | Ball bearing surface wearing smooth, motor compensating | Schedule maintenance within 5 batches |
+| Wet Raw Material | Drying — irregular power spikes instead of steady plateau | Moisture unevenly distributed in granules | Extend drying phase 3–4 minutes |
+| Calibration Needed | Compression — uniformly elevated baseline for full 52 minutes | Compression die worn, more energy needed for same force | Schedule calibration at next changeover |
+
+---
+
+### Component 2.4 — The Sliding Window Forecaster
+
+**One job:** Update the energy prediction every 30 seconds during a running batch using actual consumption data accumulated so far, and produce a progressively narrowing confidence interval.
+
+The forecaster blends two signals. The first is the model's initial prediction based on parameters set before the batch. The second is an extrapolation from actual energy consumed so far. Early in the batch, the blend weights heavily toward the model prediction because little actual data exists. As the batch progresses and actual data accumulates, the blend shifts toward actual data. By the final quarter, the forecast is predominantly based on what has actually happened.
+
+The confidence interval narrows as the batch progresses. At batch start, the interval might span plus or minus nine kilowatt-hours. By 80 percent completion, it narrows to plus or minus one kilowatt-hour. The operator sees a forecast that becomes more precise as the batch runs, giving earlier and more reliable warning when trending above target.
+
+---
+
+### Component 2.5 — The Confidence Scorer
+
+**One job:** Attach a single, honest confidence score to every prediction that reflects all sources of uncertainty in a number the operator can act on.
+
+A prediction of 91.4 Newton with 94 percent confidence is completely different information from a prediction of 91.4 Newton with 41 percent confidence. Without a confidence score, both look identical to the operator.
+
+The score starts at a base of 0.95 — the typical accuracy on well-represented inputs — and applies reductions for each source of uncertainty. An input outside the training distribution reduces confidence by 35 percent. Detected model drift reduces it by 10 percent. A derived feature that could not be computed cleanly reduces it by 15 percent. The result is displayed with a colour indicator: green above 0.85, amber between 0.60 and 0.85, red below 0.60.
+
+---
+
+## 6. Layer 3 — The Decision Engine
+
+Layer 3 converts model outputs into human decisions, cost information, and operator actions.
+
+---
+
+### Component 3.1 — The Cost Translator
+
+**One job:** Convert every energy prediction from kilowatt-hours into Indian Rupees, compute the variance against the batch cost target, and project monthly cost at the current rate.
+
+The rupee-per-kilowatt-hour rate is a single configurable value. When the electricity tariff changes, one number changes and all projections update automatically. For every batch, the cost translator produces the predicted energy cost, the gap against the cost target, an estimated CO₂ emission figure at 0.82 kilograms per kilowatt-hour, the carbon variance, and a monthly projection across the planned daily batch count. This projection is the ROI figure: if π0's recommendations reduce energy by 6 percent, the monthly saving is a specific, auditable rupee amount.
+
+---
+
+### Component 3.2 — The Recommendation Engine
+
+**One job:** Convert SHAP attribution into a specific, physical, machine-level instruction that an operator can follow without additional interpretation.
+
+A model-level recommendation says "reduce compression force." A machine-level recommendation says "reduce compression force on Compression Unit B — left panel RPM dial, from position 7 to position 6, after the current compression cycle completes in approximately six minutes, which will save an estimated 3.4 kilowatt-hours and reduce hardness from 109 Newton to approximately 95 Newton, which remains within the acceptable range."
+
+The second version is actionable. The first is not. The Recommendation Engine produces the second version by combining the top SHAP contributor with the machine configuration map and the quality impact model.
+
+---
+
+### Component 3.3 — The Alert Engine
+
+**One job:** Monitor anomaly scores and forecast deviations, fire alerts at the correct severity level, and ensure every alert contains a complete, structured record.
+
+Two thresholds trigger alerts. A forecast exceeding the energy target by more than 15 percent triggers a WARNING. Exceeding by more than 25 percent, or an anomaly score above 0.60, triggers a CRITICAL. Every alert record contains: the alert identifier, batch identifier, precise timestamp, alert type, severity level, plain-English description of what is wrong, technical detail of the detection, root cause from SHAP attribution, the specific physical action recommended including machine name, the estimated energy saving if the action is taken, and the quality impact of the recommended adjustment.
+
+---
+
+### Component 3.4 — The Alert Acknowledgement System
+
+**One job:** Track the full lifecycle of every alert from firing to resolution and store that lifecycle permanently.
+
+An alert that was fired but not seen is as important to the audit record as an alert that was followed and resolved. Both tell a story about the batch. If a batch exceeded energy target and the alert at minute 45 was never acknowledged, that fact is part of the explanation of why the batch exceeded target. Without the acknowledgement system, that fact is invisible.
+
+Every alert passes through six states: fired, delivered, seen, acknowledged, acted-upon, and resolved. If an alert does not reach the seen state within the configured timeout, the system escalates to the supervisor automatically. If the supervisor does not acknowledge within five minutes, the plant manager is notified. Each escalation creates a linked record without modifying the original.
+
+---
+
+### Component 3.5 — The Golden Batch Manager
+
+**One job:** Maintain the authorised reference batch that defines optimal performance for each product formulation, version-control all changes, and make the golden targets available to the anomaly detector and dashboard comparisons.
+
+The golden batch is not a random historical batch. It is explicitly designated by an authorised person based on evidence that it achieved the best combination of quality outcomes and energy efficiency. The designation creates a formal record: which batch it is based on, the designating person's identity and role, the timestamp, the stated reason for selection, and the complete set of target values it establishes.
+
+When a new golden batch is designated, the previous version is retired with a timestamp and the identity of the person making the change. It is never deleted. The complete history of which reference was active at any point in time is permanently preserved and restorable.
+
+---
+
+## 7. Layer 4 — The API Bridge
+
+### Component 4.1 — FastAPI
+
+**One job:** Receive requests from the three dashboards, validate all inputs before they reach the models, route requests to the correct component, and return structured responses.
+
+FastAPI is the post office of π0. The intelligence components speak Python. The dashboards speak JavaScript. FastAPI sits between them, receives requests from the browser, validates every field before it can proceed, passes validated data to the correct component, receives the response, and sends it back in a format the browser understands.
+
+The API exposes eight endpoints. One receives batch parameters and returns predictions with SHAP and cost translation. One receives parameters plus live data and returns an updated forecast. One receives recent power readings and returns anomaly score and fault classification. One takes a batch identifier and returns the full SHAP explanation in plain English. One takes a batch identifier and returns the complete audit record — every prediction, alert, acknowledgement, actual outcome, and model version. One returns the current golden batch targets. One accepts actual QC measurements and triggers the feedback loop engine. One returns current model performance metrics.
+
+---
+
+## 8. Layer 5 — The Three Dashboards
+
+π0 serves three different people with completely different information needs from the same underlying data.
+
+---
+
+### Dashboard A — The Operator View
+
+The operator view shows three numbers and one colour. The three numbers are batch progress as a percentage, energy status against target, and predicted quality outcome summarised as good, caution, or risk. The colour is green, amber, or red.
+
+When an alert fires, the entire view transforms into an action card showing in plain language what is wrong, step-by-step physical instructions specifying which machine and which control to adjust, the estimated saving if the action is taken, and three buttons: done, not possible, and help. The button press is the acknowledgement. The timestamp and operator identity are recorded from the active login session automatically.
+
+---
+
+### Dashboard B — The Technical View
+
+Four panels. The pre-batch prediction panel contains the input form, five predictions with confidence intervals, a golden batch comparison delta, and the cost projection. The live energy monitor panel shows a real-time chart of actual versus predicted energy, a phase indicator, and the sliding window forecast with its confidence band. The power curve anomaly panel shows the live power and vibration readings, the anomaly score gauge, and fault type and recommendation when detected. The SHAP explanation panel shows the waterfall chart for each target, the plain-English attribution summary, and the specific recommendation derived from the top SHAP contributor.
+
+---
+
+### Dashboard C — The Management View
+
+Four summary cards at the top: batches completed today, total energy against target, cost against target, and quality pass rate. Below, a seven-day energy trend chart against the target line. Below that, active alerts from the last 24 hours with resolution status. At the bottom, model health status with the current 30-day accuracy and the date of the last model update. Every number is a link that drills into the detail behind it.
+
+---
+
+## 9. The Feedback Loop
+
+The feedback loop is what makes π0 a learning system rather than a static calculator. It consists of five stages forming a complete circle.
+
+Stage one is prediction — five outcomes are predicted and stored with full provenance before every batch. Stage two is monitoring — the anomaly detector and forecaster produce real-time assessments and store every alert and acknowledgement during the batch. Stage three is outcome recording — after the batch completes, QC enters actual measured values for all five quality targets. Stage four is accuracy tracking — prediction error is computed for all five targets, the rolling 30-day accuracy is updated, and the management dashboard reflects the current model health. Stage five is the retraining decision — if rolling accuracy degrades beyond the threshold, the model is flagged for review and, when enough evidence accumulates, a retraining process is initiated, validated, staged, approved, and deployed. The loop returns to stage one with a more accurate model.
+
+Without this loop, the model trained at launch is the model in production six months later regardless of how conditions have changed. With this loop, the model improves continuously as the system accumulates batch history.
+
+---
+
+## 10. The Audit Architecture
+
+Every batch in a regulated pharmaceutical manufacturing environment must have a complete, unalterable record. π0's audit architecture is designed around this requirement.
+
+The audit store maintains a complete record for every batch ever run. The record contains the full batch identity and timing, operator identity and login session, all input parameters and derived features with computation formulas, all five predictions with model version and confidence scores, the complete SHAP breakdown, all power curve readings for the entire batch duration, every anomaly score computed during the run, every alert fired with its complete content, every acknowledgement or non-acknowledgement with timestamps and operator identities, every action taken or declined with optional notes, actual QC measurements and prediction errors, and complete model lineage traceable to the training data.
+
+The immutability rule is absolute. Once a batch is marked closed, no field in its audit record can be modified. Corrections are appended as new records linked to the original. This is append-only architecture — the foundation of every audit system that a regulatory body can rely upon.
+
+---
+
+## 11. The Alert and Acknowledgement System
+
+An alert that is fired but never seen is invisible without a system to track it. The acknowledgement system makes the complete lifecycle of every alert explicit, permanent, and auditable.
+
+Every alert passes through six states. Fired is when the alert is created. Delivered is confirmed by a WebSocket acknowledgement from the browser. Seen is inferred from the operator's active login session at the time of delivery. Acknowledged is confirmed by an explicit button press. Acted-upon is confirmed when the operator selects whether they followed, declined, or escalated the recommendation. Resolved is recorded when the batch phase associated with the alert completes.
+
+If an alert does not move from fired to seen within ten minutes for a warning or three minutes for a critical, it escalates to the shift supervisor. If the supervisor does not acknowledge within five minutes, the plant manager receives a notification. Each escalation step creates a new linked record without modifying the original. The complete history of who was supposed to see it, who actually saw it, how long it took, and what was done is always queryable.
+
+---
+
+## 12. The Golden Batch System
+
+The golden batch is the authorised reference standard for a product formulation. It is explicitly designated by an authorised person — typically the QC manager or senior process engineer — based on evidence that it achieved the best combination of quality and energy efficiency.
+
+The designation creates a formal record: the batch identifier it is based on, the designating person's identity and role, the timestamp, the stated reason for selection, and the complete set of target values and parameter values it establishes. The anomaly detector uses the golden batch's power signature as its reconstruction reference. Every dashboard comparison is made against the golden batch targets.
+
+Version control is maintained across all designations. When a new golden batch is designated, the previous version is marked retired with a timestamp. It is never deleted. If the new designation proves unsuitable, the previous version can be restored. The complete history of which reference was active at any point is permanently preserved.
+
+---
+
+## 13. Technology Stack
+
+Every technology in π0 is described from first principles, compared to the alternatives considered, and justified with a specific reason for the choice made.
+
+---
+
+### Python
+
+Python is the programming language in which all intelligence components are written.
+
+Python is the universal language of machine learning and data science. Every library π0 relies on — XGBoost, SHAP, scikit-learn, PyTorch — was built primarily for Python and has its deepest support in Python. Using a different language would mean reimplementing these libraries from scratch or writing complex integration layers. Python also has the largest data science community, meaning the most tutorials, the most Stack Overflow answers, and the most examples for every problem encountered.
+
+**Alternatives considered:** R is excellent for statistics but has no production deployment story. Julia is faster but the ecosystem is immature for manufacturing ML. Python wins on ecosystem size and deployment practicality.
+
+---
+
+### XGBoost
+
+XGBoost is the machine learning algorithm powering the Multi-Target Predictor.
+
+In plain language, XGBoost builds 200 decision trees where each tree learns from the mistakes of all previous trees. A decision tree is a sequence of if-then questions on your input features that eventually produces a numerical answer. The first tree makes rough predictions. Each subsequent tree focuses on the cases where the previous trees were wrong. After 200 trees, the combined answer is far more accurate than any single tree.
+
+**Why not a neural network:** Neural networks are designed for problems where patterns are deeply hidden in complex unstructured data — images, audio, language. Your problem has seven inputs, sixty batches, and correlations above 0.99. The pattern is not hidden. A neural network on sixty rows would memorise the training examples rather than learn the pattern — a problem called overfitting — and perform worse than XGBoost on new batches.
+
+**Why not linear regression:** Linear regression assumes the relationship between inputs and outputs is a straight line. The relationship between drying temperature and dissolution rate is not linear — very low and very high temperatures both produce worse dissolution rates than the optimal middle range. XGBoost makes no such assumption.
+
+**Why not Random Forest:** Random Forest was the closest alternative and would have worked. XGBoost was chosen because it is consistently more accurate on small tabular datasets with high correlations, and it integrates natively with SHAP through a highly efficient exact algorithm called TreeExplainer.
+
+---
+
+### SHAP
+
+SHAP is a Python library that explains what any machine learning model decided and why, by distributing the prediction across the input features.
+
+The name stands for SHapley Additive exPlanations. The calculation uses a method from cooperative game theory for fairly dividing the outcome of a cooperative game among players who contributed different amounts. In π0, the players are the ten input features and the outcome being distributed is the deviation of the prediction from the average.
+
+**Why not built-in feature importance:** XGBoost has a native feature importance metric, but it only tells you globally which features tend to matter across all predictions. SHAP tells you specifically how much each feature contributed to this specific prediction for this specific batch. That per-prediction granularity is what makes the Recommendation Engine work — and what makes the operator's explanation meaningful rather than generic.
+
+**Why not LIME:** LIME is a similar explainability library. SHAP was chosen because SHAP produces stable, consistent explanations for the same input — running it twice on the same prediction produces identical values. LIME produces approximations that can vary between runs. For explanations stored as part of a permanent audit record, stability is a requirement.
+
+---
+
+### PyTorch with LSTM Autoencoder
+
+PyTorch is a deep learning library. LSTM — Long Short-Term Memory — is a neural network architecture designed for sequential data where the order of readings matters.
+
+Power curve data is sequential: the reading at second 900 is related to the reading at second 899. A standard neural network treats every input independently, losing all time relationship. An LSTM reads data the way you read a sentence — it maintains a memory of what came before and uses that memory to understand what it is currently reading. After processing an entire batch's power curve, the LSTM holds a compressed representation of that curve's character.
+
+The autoencoder architecture extends this: the LSTM learns to compress a normal curve and then reconstruct it. When it encounters an abnormal curve, its reconstruction is inaccurate. That reconstruction error is the anomaly score.
+
+**Why PyTorch not TensorFlow:** Both are excellent frameworks. PyTorch was chosen because its error messages are clearer during debugging, its intermediate values are more easily inspectable, and the manufacturing ML research community predominantly publishes PyTorch implementations.
+
+---
+
+### scikit-learn
+
+scikit-learn is a Python library containing preprocessing tools, model evaluation utilities, and classic machine learning algorithms. π0 uses it for four specific purposes.
+
+StandardScaler normalises the ten input features so no single parameter dominates the model's learning simply because its numerical range is larger. Without normalisation, compression force in kilonewtons and granulation time in minutes would have completely different scales, and the model would implicitly treat larger-numbered parameters as more important.
+
+TimeSeriesSplit creates training and validation splits that respect time ordering. Randomly splitting 60 batches would allow batches from February to appear in training while batches from January appear in testing — leaking future information into past predictions. TimeSeriesSplit ensures test batches always come after all training batches chronologically.
+
+MultiOutputRegressor wraps the five separate XGBoost models into a single interface, managing all five and returning all five outputs together when a prediction is requested.
+
+Mean Absolute Percentage Error is the accuracy metric used by the Feedback Loop Engine to monitor model performance over time. It expresses prediction error as a percentage of the actual value, making it comparable across targets with different units and scales.
+
+---
+
+### FastAPI
+
+FastAPI is a Python framework for building web APIs — the bridge between Python models and the JavaScript dashboard.
+
+The intelligence components speak Python. The dashboards speak JavaScript. FastAPI creates a set of web addresses that the browser can send requests to. It receives the request, validates every field before it can proceed, passes the data to the correct component, receives the response, and returns it to the browser.
+
+**Why not Flask:** Flask is the most popular Python web framework and would work. FastAPI was chosen for three reasons specific to π0. First, FastAPI validates all inputs using Pydantic — a text string accidentally sent where a number is expected is caught at the door with a clear error message, rather than crashing the model with a confusing traceback. Second, FastAPI is asynchronous — it handles a real-time sensor data stream and a prediction request simultaneously without either blocking the other. Flask is synchronous and would queue one behind the other. Third, FastAPI automatically generates interactive API documentation at the /docs endpoint with zero additional code — every endpoint, its required parameters, and its response format are documented and testable from any browser.
+
+---
+
+### React
+
+React is a JavaScript library for building user interfaces that update automatically when their underlying data changes.
+
+When a new power reading arrives every second during a live batch, the line chart must update, the anomaly gauge must update, and the sliding window forecast must refresh. In plain HTML with JavaScript, each of these updates would require manually locating the element, removing old data, inserting new data, and re-rendering — multiple lines of code per update across a dozen elements. React abstracts all of that. You define what the screen should look like for any given state of data, and React determines the minimum changes required to make the screen reflect new data. This is what makes the live charts smooth.
+
+**Why not Vue:** Vue would work equally well technically. React was chosen because of ecosystem size. The Recharts charting library is built specifically for React and integrates without configuration. React also has the largest JavaScript community, meaning more relevant examples when problems arise.
+
+---
+
+### Recharts
+
+Recharts is a charting library built specifically for React that provides the live power curve chart, sliding window forecast chart, SHAP waterfall chart, and management trend chart.
+
+**Why not Chart.js:** Chart.js is a general JavaScript charting library not built for React — integrating it requires extra code to prevent React and Chart.js from both trying to manage the same parts of the page at the same time.
+
+**Why not D3.js:** D3 is the most powerful data visualisation library in JavaScript but requires writing hundreds of lines of custom code for a single chart type. Recharts provides professional, configurable charts that update automatically when React data changes, in a format that requires minimal configuration.
+
+---
+
+### SQLite for Hackathon, PostgreSQL for Production
+
+A database stores structured data in tables and allows it to be queried and retrieved reliably.
+
+SQLite stores the entire database as a single file on disk. No server, no configuration. It works the moment the application starts. For a hackathon where the goal is a working demonstration of complete functionality, SQLite eliminates all database setup overhead.
+
+PostgreSQL is a full database server for production deployment. It provides user authentication and role-based access control, so operators cannot modify records only QC should modify. It provides ACID compliance — if a write fails midway through, the entire write is automatically rolled back. It supports concurrent users writing simultaneously without conflicts. It supports the append-only table policies required by the audit architecture.
+
+The transition from SQLite to PostgreSQL requires changing one configuration value. All application code communicates with the database through SQLAlchemy, a database abstraction library that speaks to both SQLite and PostgreSQL through the same interface. The application code is identical in both cases.
+
+---
+
+### Pydantic
+
+Pydantic is a Python library for defining the structure and validation rules of data objects and automatically checking that incoming data conforms to those rules before it proceeds.
+
+π0 defines formal schemas for every data type that crosses a boundary — batch parameters from the dashboard, prediction records written to the database, alert records from the alert engine. When data arrives at any boundary, Pydantic checks it against the schema. Any field that is missing, the wrong type, or outside its allowed range produces a specific, readable error message identifying exactly which field is wrong and why. Without Pydantic, bad data passes silently through multiple components before causing a failure whose error message points somewhere unhelpful.
+
+---
+
+### Docker Compose
+
+Docker Compose runs the entire π0 application — backend, frontend, database — with a single command.
+
+Without Docker, running π0 requires installing the correct version of Python, the correct version of Node, the database, all Python packages, all Node packages, and configuring both servers to communicate. One wrong library version breaks everything, and reproducing the error on a different machine may produce a different result because that machine has different background software. Docker packages the entire environment — every dependency, every configuration, the exact version of every library — into containers that run identically on any machine with Docker installed.
+
+---
+
+## 14. Hackathon vs Production Architecture
+
+Every component in π0 has a hackathon version appropriate for demonstration and a production version appropriate for a real factory floor. They share the same interface — the upgrade is a component swap, not a rewrite.
+
+| Component | Hackathon Version | Production Version |
 |---|---|---|
-| Batch-level variability in energy and emissions | Batch-level ML model trained on 2000 simulated batches with realistic variability | `models/multi_target_predictor.py` |
-| Static management systems replaced with dynamic AI | Real-time sliding window forecaster replaces fixed KPI checking | `models/sliding_window_forecaster.py` |
-| Conflicting objectives (energy vs quality vs yield) | MultiOutputRegressor simultaneously optimizes all 4 targets | `models/multi_target_predictor.py` |
+| Data source | Two Excel files at startup | Process historian via OPC-UA real-time feed |
+| Database | SQLite single-file | PostgreSQL with encryption and access controls |
+| Audit records | Standard database writes | Append-only tables with cryptographic record hashing |
+| Model serving | FastAPI in-process | Triton Inference Server, dedicated inference cluster |
+| Anomaly detection | T001 golden signature plus synthetic curves | LSTM trained on thousands of real power curves per product |
+| Alert delivery | Dashboard banner only | Dashboard plus SMS plus email plus supervisor escalation |
+| Reporting | Real-time dashboard only | Scheduled PDF shift summaries, daily and weekly reports |
+| Model retraining | Manual initiation by engineer | Automated pipeline with human approval gate before deployment |
+| Compliance | SQLite records, no access control | 21 CFR Part 11 compliant with LIMS integration |
+| Environments | Single environment | Development, staging, and production with approval gates |
+| Multi-batch context | Each batch predicted independently | Inter-batch feature carryover from previous batch exit metrics |
 
-### Track A Specific Requirements
+---
 
-| Track A Requirement | Our Implementation |
+## 15. Gap Audit
+
+π0 names its limitations explicitly rather than hiding them. A judge or auditor with manufacturing experience will identify these gaps whether or not they are declared. Declaring them demonstrates architectural maturity and the ability to think critically about your own system.
+
+---
+
+**Gap A — Power Curve Coverage**
+
+Only one real power curve exists in the provided data — batch T001. The LSTM anomaly detector is therefore trained on T001 as the golden reference plus synthetic curves generated for all other batches by scaling T001's phase signatures according to each batch's process parameters. The synthetic curves encode the physical relationships but they are not real sensor measurements. The production path is a process historian integration that captures real power curves for every batch automatically.
+
+---
+
+**Gap B — Energy as Derived Not Measured**
+
+The batch production data file contains no measured energy column. The energy prediction target is computed from T001's phase-level consumption rates scaled by process parameters. It is a physically grounded estimate, not a metered measurement. The production path is smart meter integration per machine that writes directly to the prediction input pipeline.
+
+---
+
+**Gap C — Small Training Dataset**
+
+The dataset contains 60 real batches. This is sufficient to produce a high-accuracy model because the correlations between inputs and outputs are extremely strong. However, it limits confidence in generalisation to parameter combinations that have never been seen. Domain-aware data augmentation expands the effective training set to 300 records within realistic bounds. Confidence scoring explicitly flags when a prediction uses inputs outside the historical range.
+
+---
+
+**Gap D — Single Machine**
+
+The data provided covers one production line. π0 cannot model interactions between machines or predict how upstream deviations propagate to downstream outcomes. The production path is multi-machine cascade prediction using a graph-based model of the complete manufacturing line.
+
+---
+
+**Gap E — No Labelled Fault History**
+
+The dataset contains no records of confirmed bearing failures, wet material batches, or calibration events. The fault classifier is trained on synthetic fault signatures constructed from domain knowledge. The production path is retrospective labelling of historical maintenance events combined with ongoing tagging of detected faults confirmed by maintenance records.
+
+---
+
+## 16. Future Scope
+
+Eight features are defined for production development, each grounded in a specific identified gap and each specifying the technical path to implementation.
+
+---
+
+**FS-1 — Automated Model Retraining Pipeline**
+
+Addresses the broken feedback loop. A scheduled pipeline detects accuracy degradation, trains a new model on all available batch history, validates it against a held-out set, stages it for five batches in parallel with the current model, and deploys upon human approval. The retraining process is fully auditable — every training run, every validation result, every deployment decision is stored permanently. Technical path: Apache Airflow for pipeline scheduling, MLflow for model registry and experiment tracking.
+
+---
+
+**FS-2 — Process Historian Integration**
+
+Addresses the power curve coverage gap. A real-time connector to the plant's sensor data historian via OPC-UA protocol captures power curves for every batch automatically. Within six months, π0 holds hundreds of real curves available for genuine LSTM training on confirmed fault patterns. Technical path: Python OPC-UA library, TimescaleDB for time-series storage at one-second resolution.
+
+---
+
+**FS-3 — Shift Summary and Reporting Engine**
+
+Addresses the absence of a reporting layer identified from the plant manager perspective. At every shift end, a structured PDF report is generated automatically: batches run, energy consumed, cost variance, alerts fired with resolution status, anomalies detected, and model accuracy. Emailed automatically to plant manager and operations head. Technical path: ReportLab for PDF generation, Celery for scheduled task execution, SMTP for email delivery.
+
+---
+
+**FS-4 — RAG-Based Batch Intelligence Chatbot**
+
+Enables operators and engineers to query the batch history in plain English. An operator asks "Why did batch T033 achieve the best dissolution rate this year?" and receives a specific, evidence-based answer sourced from the prediction store, SHAP records, and process parameters — no SQL knowledge required. Technical path: ChromaDB for vector storage of batch records, LangChain RAG chain, Claude Haiku for grounded answer generation.
+
+---
+
+**FS-5 — Inter-Batch Feature Carryover**
+
+Addresses the batch independence assumption. The prediction for each batch incorporates exit metrics from the previous batch — final Milling vibration, energy overrun, time since last maintenance event — improving accuracy for consecutive batches on the same machine. Technical path: new feature table in PostgreSQL storing batch exit metrics, modified feature engineering pipeline to pull previous batch features.
+
+---
+
+**FS-6 — 21 CFR Part 11 Compliance Layer**
+
+Addresses the regulatory audit gap. Append-only records, cryptographic signatures on every batch record, electronic signature for batch closure, role-based access control, and audit log export formatted for regulatory submission. Technical path: PostgreSQL append-only table policies, SHA-256 record hashing per batch, LIMS integration for laboratory data management.
+
+---
+
+**FS-7 — Multi-Machine Cascade Prediction**
+
+Extends the architecture to model the entire manufacturing line as a connected system where upstream deviations propagate to downstream predictions. When the granulator runs hotter than usual, the dryer automatically receives an updated prediction for the material it is about to receive. Technical path: Neo4j graph database for machine relationship and material flow modelling, graph neural network for cascade prediction.
+
+---
+
+**FS-8 — Mobile Supervisor Alert App**
+
+Delivers critical alerts to the supervisor's phone as push notifications with acknowledgement capability from the phone. A Progressive Web App — installable from any browser without an app store — delivers three notification tiers: critical, warning, and information. Technical path: Service Workers for PWA installation, Web Push API, three-tier notification routing.
+
+---
+
+## 17. The One Question π0 Can Always Answer
+
+Every architectural decision in this document exists to ensure that π0 can answer this question for any batch that has ever run through the system:
+
+> *"For batch T047 — what did π0 predict before it started, which parameter drove each prediction, was any alert fired during the run, did the operator acknowledge it, what did they do, what were the actual QC results, how wrong was the prediction, and which version of the model made that prediction?"*
+
+Every part of this question maps directly to a component:
+
+| Part of the question | Component that answers it |
 |---|---|
-| Advanced Multi-Target Prediction — Quality, Yield, Performance, Energy | XGBoost `MultiOutputRegressor` predicting all 4 targets simultaneously |
-| >90% accuracy in batch-level prediction | Achieved >93% accuracy (MAPE < 7%) across all 4 targets on test set |
-| Energy Pattern Intelligence — asset and process reliability | LSTM Autoencoder trained on power curves + Random Forest fault classifier |
-| Distinguish machine faults from process parameter changes | Fault classifier identifies: bearing wear, wet material, calibration needed |
-| Real-Time Forecasting using process parameters and machine configurations | Sliding window model updating every 30 seconds with live sensor data |
+| What did π0 predict | Prediction Store |
+| Which parameter drove each prediction | SHAP Explainer output stored in Prediction Store |
+| Was any alert fired | Alert Engine records |
+| Did the operator acknowledge it | Alert Acknowledgement System lifecycle record |
+| What did they do | Alert acted-upon state with operator note |
+| Actual QC results | Outcome Recorder fields in Prediction Store |
+| How wrong was the prediction | Feedback Loop Engine error computation |
+| Which model version | Model Registry linked by model_version field in Prediction Store |
 
-### Universal Objectives Coverage
+Every row above is a direct database query. The complete answer is available in under two seconds. For any batch. For any point in time. Permanently.
 
-| Universal Objective | Our Implementation |
-|---|---|
-| Adaptive Target Setting — regulatory and sustainability requirements | Carbon budget per batch calculated from monthly regulatory targets |
-| Industrial Validation — simulated manufacturing data with ROI | 2000 batches of synthetic data with domain-accurate physics, ROI metrics on dashboard |
-| Decision Support System | Real-time recommendation engine with ranked, quantified suggestions |
-| Integration APIs | FastAPI REST + WebSocket endpoints, Pydantic validation, auto-generated Swagger docs |
-| Data Processing Pipeline | KNN imputation + IQR outlier capping + feature engineering pipeline |
-
-### Technical Requirements Coverage
-
-| Technical Requirement | Our Implementation |
-|---|---|
-| Production Parameters | Simulated: material type, batch size, process sequences, quality metrics |
-| Energy Metrics | Simulated smart meter data at 1Hz per machine, power consumption profiles |
-| Environmental Data | CO₂ calculated per batch (energy × emission factor), regulatory benchmarks configurable |
-| Operational Data | Machine configurations, shift scheduling, operator experience level |
-| Data Quality — cleaning, normalization, validation | `preprocessing/pipeline.py` — 4-stage pipeline |
-| Anomaly Handling — missing values, outlier detection | KNN imputation + IQR capping |
-| Feature Engineering | 7 derived features per batch record |
-| Multi-Target Regression | `MultiOutputRegressor(XGBRegressor)` |
-| Time Series Integration | LSTM Autoencoder + sliding window features |
-| Ensemble Methods | XGBoost = ensemble of 300 decision trees |
-| MAE, RMSE, MAPE accuracy metrics | All computed in `models/evaluate_all.py` |
-| SHAP values and feature importance | `explainability/shap_explainer.py` |
-| Business Impact — energy savings, CO₂ reductions, cost optimization | Calculated per recommendation in `api/routes/recommend.py` |
+That is what a foolproof architecture looks like.
 
 ---
 
-## 💡 The Core Idea — In Plain English
-
-### The Problem in One Sentence
-
-A factory makes products in batches. Each batch burns energy, produces output, and emits carbon. Nobody knows if a batch is going to be wasteful or efficient until after it finishes — and by then, it's too late to fix.
-
-### The Doctor Analogy
-
-Think of our system like an experienced doctor doing a live diagnosis. A doctor who has treated 10,000 patients doesn't wait for the patient to collapse. They see current vital signs — temperature 38.5°C, elevated heart rate, specific pain pattern — and immediately say: *"This looks like early-stage infection. If untreated, in 48 hours you'll have X. Here's what to do now."*
-
-Our AI has "seen" 2,000 historical batches. When a new batch starts, it reads the current conditions and predicts how that batch will end — before it ends. It reads the power curve like a doctor reads an ECG. It recommends adjustments like a doctor prescribes treatment.
-
-### The Three Questions We Answer
-
-**Question 1 — What will happen?**
-Given these batch parameters, predict Quality %, Yield %, Performance %, and Energy kWh before the batch ends.
-
-**Question 2 — Why is something going wrong?**
-The power consumption pattern of a failing bearing looks different from a process drift caused by wet raw material. Our LSTM Autoencoder learns to tell them apart.
-
-**Question 3 — What should we do right now?**
-If energy is trending 20% above target at minute 8 of a 30-minute batch, the system says: *"Reduce conveyor speed from 85% to 77%. Estimated saving: 1.4 kWh. Impact on yield: -0.3%."*
-
----
-
-## 🏗 System Architecture
-
-The system is built in 5 layers. Data flows from left to right, getting more intelligent at each layer, and ending with a specific recommendation on an operator's screen.
-
-```
-╔══════════════════════════════════════════════════════════════════════════════╗
-║                         LAYER 1 — DATA SOURCES                              ║
-╠══════════════════════════════════════════════════════════════════════════════╣
-║                                                                              ║
-║   ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌──────────────────┐  ║
-║   │ IIoT/Smart  │  │  MES / ERP  │  │  Historical  │  │  Regulatory DB   │  ║
-║   │   Meters    │  │   Systems   │  │    Batches   │  │  (Carbon limits) │  ║
-║   │             │  │             │  │              │  │                  │  ║
-║   │ Power draw  │  │ Batch logs  │  │ 2000+ past   │  │ Emission factors │  ║
-║   │ Temperature │  │ Material    │  │ runs with    │  │ Monthly targets  │  ║
-║   │ Vibration   │  │ Scheduling  │  │ known outcomes│  │ Benchmarks       │  ║
-║   └──────┬──────┘  └──────┬──────┘  └──────┬───────┘  └────────┬─────────┘  ║
-╚══════════╪═════════════════╪════════════════╪═══════════════════╪═══════════╝
-           └─────────────────┴────────────────┘                   │
-                             │                                     │
-                             ▼                                     ▼
-╔══════════════════════════════════════════════════════════════════════════════╗
-║                       LAYER 2 — DATA PIPELINE                               ║
-╠══════════════════════════════════════════════════════════════════════════════╣
-║                                                                              ║
-║  ┌──────────────────┐    ┌───────────────────┐    ┌────────────────────┐    ║
-║  │  Data Ingestion  │    │   Preprocessing   │    │   Feature Store    │    ║
-║  │                  │───▶│                   │───▶│                    │    ║
-║  │ Pandas CSV load  │    │ • KNN imputation  │    │ • Normalized batch │    ║
-║  │ Simulated IoT    │    │ • IQR outlier cap │    │   features         │    ║
-║  │ MQTT simulation  │    │ • Normalization   │    │ • Engineered feats │    ║
-║  │                  │    │ • 7 derived feats │    │ • SQLite cache     │    ║
-║  └──────────────────┘    └───────────────────┘    └────────────────────┘    ║
-║                                                                              ║
-║  Derived features: temp_speed_product | temp_deviation | hold_per_kg        ║
-║                    shift_encoding | hours_into_shift | energy_per_kg        ║
-║                    speed_deviation                                          ║
-╚══════════════════════════════════════════════════════════════════════════════╝
-                             │
-                             ▼
-╔══════════════════════════════════════════════════════════════════════════════╗
-║                         LAYER 3 — AI CORE                                   ║
-╠══════════════════════════════════════════════════════════════════════════════╣
-║                                                                              ║
-║  ┌─────────────────────┐  ┌──────────────────────┐  ┌──────────────────┐   ║
-║  │  Multi-Target        │  │  LSTM Autoencoder     │  │  Sliding Window  │   ║
-║  │  XGBoost Predictor  │  │  + Fault Classifier   │  │  Forecaster      │   ║
-║  │                     │  │                      │  │                  │   ║
-║  │ XGBRegressor ×4     │  │ PyTorch LSTM         │  │ XGBoost +        │   ║
-║  │ MultiOutputRegressor│  │ Encoder-Decoder      │  │ Rolling features │   ║
-║  │                     │  │                      │  │                  │   ║
-║  │ Predicts:           │  │ Detects:             │  │ Updates:         │   ║
-║  │ → Quality %         │  │ → Bearing wear       │  │ → Every 30 secs  │   ║
-║  │ → Yield %           │  │ → Wet raw material   │  │ → Uses actual    │   ║
-║  │ → Performance %     │  │ → Calibration need   │  │   data so far    │   ║
-║  │ → Energy kWh        │  │ → Normal (baseline)  │  │ → Tighter CI as  │   ║
-║  │                     │  │                      │  │   batch proceeds │   ║
-║  │ Accuracy: >93%      │  │ F1-Score: 0.91       │  │                  │   ║
-║  └─────────────────────┘  └──────────────────────┘  └──────────────────┘   ║
-║                                                                              ║
-║  ┌──────────────────────────────────────────────────────────────────────┐   ║
-║  │                      SHAP Explainability Layer                        │   ║
-║  │                                                                      │   ║
-║  │  For every prediction → SHAP values → "hold_time drove +3.8 kWh"    │   ║
-║  │  TreeExplainer on each of 4 target models → waterfall + summary plot │   ║
-║  └──────────────────────────────────────────────────────────────────────┘   ║
-╚══════════════════════════════════════════════════════════════════════════════╝
-                             │
-                             ▼
-╔══════════════════════════════════════════════════════════════════════════════╗
-║                      LAYER 4 — DECISION ENGINE                              ║
-╠══════════════════════════════════════════════════════════════════════════════╣
-║                                                                              ║
-║  ┌──────────────────────┐    ┌─────────────────────┐    ┌───────────────┐   ║
-║  │  Adaptive Carbon      │    │ Recommendation      │    │ Alert System  │   ║
-║  │  Target Engine        │    │ Engine              │    │               │   ║
-║  │                      │    │                     │    │ 3 severity    │   ║
-║  │ Monthly CO₂ budget   │    │ Ranked parameter    │    │ levels:       │   ║
-║  │ ÷ planned batches    │    │ adjustments with    │    │ NORMAL 🟢    │   ║
-║  │ = per-batch target   │    │ estimated impact    │    │ WARNING 🟡   │   ║
-║  │                      │    │ (kWh saved, quality │    │ CRITICAL 🔴  │   ║
-║  │ Live carbon gauge    │    │ impact, confidence) │    │               │   ║
-║  └──────────────────────┘    └─────────────────────┘    └───────────────┘   ║
-╚══════════════════════════════════════════════════════════════════════════════╝
-                             │
-                             ▼
-╔══════════════════════════════════════════════════════════════════════════════╗
-║                       LAYER 5 — OUTPUT & UI                                 ║
-╠══════════════════════════════════════════════════════════════════════════════╣
-║                                                                              ║
-║  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌───────────────┐   ║
-║  │  Pre-Batch   │  │  Live Batch  │  │  Power Curve │  │     SHAP      │   ║
-║  │  Prediction  │  │  Monitor     │  │  Anomaly     │  │  Explanation  │   ║
-║  │  Panel       │  │              │  │  Detector    │  │  Panel        │   ║
-║  │              │  │ Real-time    │  │              │  │               │   ║
-║  │ All 4 targets│  │ energy chart │  │ Anomaly gauge│  │ Feature bars  │   ║
-║  │ BEFORE start │  │ vs target    │  │ Fault type   │  │ Per-target    │   ║
-║  │ What-If      │  │ every 30s    │  │ Recommended  │  │ Waterfall     │   ║
-║  │ sliders      │  │ update       │  │ action       │  │ chart         │   ║
-║  └──────────────┘  └──────────────┘  └──────────────┘  └───────────────┘   ║
-║                                                                              ║
-║  ┌───────────────────────────────────────────────────────────────────────┐  ║
-║  │                FastAPI REST + WebSocket Endpoints                      │  ║
-║  │  POST /predict/batch  |  POST /predict/realtime  |  POST /anomaly     │  ║
-║  │  GET /explain/{id}    |  GET /model/features     |  WS /live/{id}     │  ║
-║  └───────────────────────────────────────────────────────────────────────┘  ║
-╚══════════════════════════════════════════════════════════════════════════════╝
-```
-
----
-
-## 📊 Data Architecture
-
-### Batch Record Schema
-
-Every historical and live batch is described by the following fields:
-
-```
-INPUTS (operator-controlled parameters):
-─────────────────────────────────────────────────────────
-temperature        float   °C         175–195
-conveyor_speed     float   %          60–95
-hold_time          float   minutes    10–30
-batch_size         float   kg         300–700
-material_type      int     0/1/2      0=TypeA, 1=TypeB, 2=TypeC
-hour_of_day        int     6–21       shift timing
-operator_exp       int     0/1/2      0=junior, 1=mid, 2=senior
-
-ENGINEERED FEATURES (derived during preprocessing):
-─────────────────────────────────────────────────────────
-temp_speed_product float   interaction term
-temp_deviation     float   |temp - 183| — distance from optimum
-speed_deviation    float   |speed - 75| — distance from optimum
-hold_per_kg        float   hold_time / batch_size
-shift              int     0=morning, 1=afternoon, 2=night
-hours_into_shift   int     hours elapsed since shift start
-energy_per_kg      float   energy_kwh / batch_size  (historical only)
-
-OUTPUTS (prediction targets):
-─────────────────────────────────────────────────────────
-quality_score      float   %          60–100
-yield_pct          float   %          70–100
-performance_pct    float   %          60–100
-energy_kwh         float   kWh        derived from inputs
-co2_kg             float   kg CO₂e    energy × 0.82
-```
-
-### Power Curve Schema
-
-Each batch generates 1,800 data points (one per second over 30 minutes):
-
-```
-Shape:  (1800,) float array
-Unit:   kW (kilowatts)
-Range:  1.0 — 9.0 kW typical
-Format: NumPy .npy file per batch
-
-Curve shape (normal):
-   kW
-   7 │         ╭──────────────╮
-   5 │        ╱               ╲
-   3 │───────╱                 ╲──────────
-   1 │
-     └──────────────────────────────── seconds
-      0    120   600         1620  1800
-      startup  plateau         cooldown
-
-Fault signatures:
-   bearing_wear:      gradual baseline rise (+0.003 kW/second)
-   wet_material:      irregular spikes in first 600 seconds
-   calibration_needed: elevated flat baseline (+0.6 kW constant)
-```
-
----
-
-## 🧠 AI & ML Components
-
-### Component 1 — Multi-Target XGBoost Predictor
-
-**What it does:** Takes 12 features describing a batch and simultaneously predicts all 4 output targets.
-
-**Why XGBoost:**
-- Best-in-class for tabular/structured data — consistently outperforms neural networks on this data type
-- Trains in seconds on a laptop — no GPU required
-- Tree-based — naturally handles non-linear interactions between features
-- Built-in feature importance — integrates cleanly with SHAP
-- 300 trees trained sequentially, each correcting the errors of the previous
-
-**Architecture:**
-```
-Input (12 features)
-        ↓
-MultiOutputRegressor wrapper
-        ├── XGBRegressor #1 → quality_score prediction
-        ├── XGBRegressor #2 → yield_pct prediction
-        ├── XGBRegressor #3 → performance_pct prediction
-        └── XGBRegressor #4 → energy_kwh prediction
-        ↓
-Output (4 predictions in one call)
-```
-
-**Key hyperparameters:**
-```python
-XGBRegressor(
-    n_estimators=300,     # 300 trees per target model
-    learning_rate=0.05,   # conservative — prevents overfitting
-    max_depth=6,          # moderate complexity
-    subsample=0.8,        # each tree sees 80% of data
-    colsample_bytree=0.8, # each tree sees 80% of features
-    random_state=42
-)
-```
-
-**Validation strategy:** `TimeSeriesSplit(n_splits=5)` — respects temporal ordering of batches so no future data contaminates past training.
-
----
-
-### Component 2 — LSTM Autoencoder (Anomaly Detection)
-
-**What it does:** Learns the shape of a normal 30-minute power consumption curve. When a live batch's curve deviates significantly from "normal," it raises an anomaly alert.
-
-**Why LSTM:**
-- Power curves are sequential — reading at second 900 is meaningfully related to readings at seconds 899 and 901
-- LSTM maintains a "memory" across the entire 1800-step sequence
-- Regular feed-forward networks treat each timestep independently and miss temporal patterns
-
-**Why Autoencoder architecture:**
-- Trains only on normal data — no need for labeled fault data
-- Compression bottleneck forces the model to learn the most important features of normal curves
-- Abnormal curves can't be reconstructed well → high reconstruction error = anomaly
-
-**Architecture:**
-```
-Input: power curve (1800 timesteps × 1 feature)
-        ↓
-LSTM Encoder (hidden_size=64, n_layers=2)
-        ↓
-Bottleneck: 64-dimensional "fingerprint" of the curve
-        ↓
-LSTM Decoder (hidden_size=1, n_layers=2)
-        ↓
-Reconstructed curve (1800 timesteps × 1 feature)
-        ↓
-Reconstruction Error = MSE(original, reconstructed)
-        ↓
-Error > threshold (99th percentile of training errors) → ANOMALY
-```
-
-**Anomaly score interpretation:**
-```
-0.00 – 0.15  →  Normal     🟢  No action
-0.15 – 0.30  →  Watch      🟡  Monitor next few batches
-0.30 – 0.60  →  Warning    🟠  Investigate
-0.60+        →  Critical   🔴  Immediate intervention
-```
-
----
-
-### Component 3 — Fault Type Classifier
-
-**What it does:** Given that an anomaly has been detected, classifies what *kind* of anomaly it is based on the statistical features of the power curve.
-
-**Why a separate classifier:**
-The autoencoder knows *that* something is wrong. The classifier knows *what* is wrong. The response to a bearing fault is completely different from the response to wet raw material.
-
-**Feature extraction from curve:**
-```python
-features = {
-    'mean':             np.mean(curve),
-    'std':              np.std(curve),
-    'max':              np.max(curve),
-    'trend_slope':      np.polyfit(t, curve, 1)[0],   # positive slope = bearing wear
-    'first_half_mean':  np.mean(curve[:900]),
-    'second_half_mean': np.mean(curve[900:]),
-    'spike_count':      np.sum(np.abs(np.diff(curve)) > 0.5),  # wet material spikes
-    'area_under_curve': np.trapz(curve),
-    'peak_time':        np.argmax(curve),
-}
-```
-
-**Model:** `RandomForestClassifier(n_estimators=100)` — fast, accurate, no tuning needed for 4 classes
-
-**Output mapping:**
-```
-Class 0 — normal             →  No action
-Class 1 — bearing_wear       →  "Schedule maintenance within 5 days"
-Class 2 — wet_material       →  "Extend drying phase by 3–4 minutes"
-Class 3 — calibration_needed →  "Machine calibration required"
-```
-
----
-
-### Component 4 — Sliding Window Real-Time Forecaster
-
-**What it does:** Updates predictions every 30 seconds during a live batch using a blend of model prediction and actual-data extrapolation.
-
-**Why this is better than a one-time prediction:**
-```
-At batch start (0% done):
-→ "Predicted energy: 38.8 kWh  ±5.2 kWh confidence"
-
-At minute 10 (33% done):
-→ "Predicted energy: 41.2 kWh  ±3.1 kWh  ⚠️ trending high"
-→ We now know 13.7 kWh was actually used so far
-→ Rate of consumption is higher than model expected
-
-At minute 20 (67% done):
-→ "Predicted energy: 43.8 kWh  ±1.4 kWh  🔴 Alert: 13% over target"
-→ "Reducing conveyor speed to 72% now would bring final to 41.1 kWh"
-```
-
-**Blend logic:**
-```python
-# Trust model more at start, trust actual rate more as batch progresses
-blend_weight = min(progress_pct * 2, 0.8)   # 0→0.8 as progress goes 0→1
-
-adjusted = (1 - blend_weight) * model_prediction + blend_weight * extrapolated
-```
-
----
-
-### Component 5 — SHAP Explainability
-
-**What it does:** For every prediction made by the multi-target model, calculates each feature's numerical contribution to that prediction.
-
-**Why this matters:**
-- Operators won't trust an AI that says "use less energy" without explaining why
-- Judges explicitly score for explainability
-- SHAP makes the AI transparent: "Hold time added 3.8 kWh to this prediction because it was 22 minutes — 4 minutes longer than the optimal 18 minutes for this material type"
-
-**Output format:**
-```
-Prediction: 44.5 kWh  (average baseline: 38.2 kWh)
-═══════════════════════════════════════════════════
-hold_time          +3.8 kWh  ████████████████████████
-material_type      +1.9 kWh  ████████████
-conveyor_speed     +1.1 kWh  ███████
-batch_size         +0.3 kWh  ██
-temperature        -0.5 kWh  ███  (helps — reduces energy)
-operator_exp       -0.3 kWh  ██
-═══════════════════════════════════════════════════
-Plain English: "Hold time is the biggest driver —
-it accounts for 3.8 kWh above the average. Reducing
-hold time from 22 to 17 minutes is estimated to save
-3.1 kWh while keeping yield within target."
-```
-
----
-
-## 🎖 Feature Tier List
-
-### 🔴 TIER 1 — Core MVP (Must Build)
-
-| # | Feature | What It Does | Build Time |
-|---|---|---|---|
-| F1.1 | Synthetic Data Generator | 2000 batch records + 2000 power curves | 3 hrs |
-| F1.2 | Preprocessing Pipeline | Clean, normalize, engineer features | 2 hrs |
-| F1.3 | Multi-Target XGBoost | Predict Quality/Yield/Performance/Energy | 3 hrs |
-| F1.4 | SHAP Explainability | Explain every prediction | 1 hr |
-| F1.5 | Basic FastAPI Backend | Serve predictions via REST API | 2 hrs |
-
-### 🟠 TIER 2 — Differentiators (Should Build)
-
-| # | Feature | What It Does | Build Time |
-|---|---|---|---|
-| F2.1 | LSTM Autoencoder | Detect abnormal power curve patterns | 4 hrs |
-| F2.2 | Fault Type Classifier | Diagnose bearing wear / wet material / calibration | 2 hrs |
-| F2.3 | Sliding Window Forecaster | Update predictions every 30 seconds live | 2 hrs |
-| F2.4 | React Operator Dashboard | 4-panel live monitoring interface | 4 hrs |
-| F2.5 | Anomaly Alert System | Visual alerts with recommended actions | 1 hr |
-
-### 🟡 TIER 3 — Impressive Extras (Build If Time Allows)
-
-| # | Feature | What It Does | Build Time |
-|---|---|---|---|
-| F3.1 | What-If Simulator | Parameter sliders → live prediction update | 2 hrs |
-| F3.2 | Carbon Budget Gauge | Live fuel-gauge for CO₂ per batch | 1 hr |
-| F3.3 | Demo Scenario Script | Scripted anomaly injection for presentation | 1 hr |
-
-### 🟢 TIER 4 — Future Scope Near Term (0–3 Months Post-Hackathon)
-
-| # | Feature | What It Does |
-|---|---|---|
-| F4.1 | RAG + LLM Conversational Interface | Ask plain English questions about production data |
-| F4.2 | Operator Feedback Confidence Scoring | Learn from accept/reject patterns to improve recommendations |
-| F4.3 | Batch Genealogy Tracker | Full timeline record of every event per batch |
-| F4.4 | Predictive Maintenance Engine | Failure probability forecast + cost-benefit for maintenance |
-| F4.5 | Shift Handover Intelligence | Auto-generated brief for incoming shift operator |
-
-### 🔵 TIER 5 — Future Scope Vision (3–12 Months)
-
-| # | Feature | What It Does |
-|---|---|---|
-| F5.1 | Multi-Machine Correlation | Detect cross-machine cascade patterns |
-| F5.2 | Full Carbon Budget Allocation | Dynamic daily CO₂ allocation per batch from monthly target |
-| F5.3 | Regulatory Compliance Reporting | One-click formatted PDF for regulatory submission |
-| F5.4 | Mobile Alert App | Push notifications for supervisors on their phones |
-| F5.5 | Natural Language Query Interface | Factory-specific query panel for everyday data questions |
-
----
-
-## 🛠 Tech Stack — Complete
-
-### Why Each Tool Was Chosen
-
-```
-CORE PRINCIPLE: Simple + Proven > Complex + Fragile
-```
-
-Every tool was chosen because it is the **simplest option that fully solves the problem.** This means faster development, easier debugging, and better demo reliability.
-
-#### Data Layer
-
-| Tool | Version | Purpose | Why This Tool |
-|---|---|---|---|
-| Python | 3.10+ | Primary language | Universal in data science, huge ecosystem |
-| NumPy | 1.26.4 | Array operations, data generation | 100× faster than Python lists for numeric operations |
-| Pandas | 2.2.2 | Tabular data manipulation | The standard for CSV/tabular work in Python |
-| SQLite | Built-in | Batch log storage | Zero config, file-based, swappable for PostgreSQL |
-| SQLAlchemy | 2.0.30 | Database ORM | Clean Python interface to SQLite |
-
-#### ML & AI Layer
-
-| Tool | Version | Purpose | Why This Tool |
-|---|---|---|---|
-| XGBoost | 2.0.3 | Multi-target batch prediction | Best tabular ML algorithm, trains in seconds, no GPU needed |
-| scikit-learn | 1.5.0 | MultiOutputRegressor, preprocessing, metrics | Standard ML toolkit, excellent documentation |
-| PyTorch | 2.3.0 | LSTM Autoencoder | Best deep learning framework, active community |
-| SHAP | 0.45.0 | Prediction explainability | Industry standard, one-liner with tree models |
-| joblib | Latest | Model serialization | Fast, reliable model save/load |
-
-#### Backend Layer
-
-| Tool | Version | Purpose | Why This Tool |
-|---|---|---|---|
-| FastAPI | 0.111.0 | REST API server | Async, auto-generates Swagger docs, Pydantic built-in |
-| Uvicorn | 0.30.1 | ASGI server | Production-grade, works natively with FastAPI |
-| Pydantic | 2.7.1 | Request/response validation | Automatic type checking, clear error messages |
-| websockets | Latest | Real-time live feed | Live 30-second updates to dashboard |
-
-#### Frontend Layer
-
-| Tool | Version | Purpose | Why This Tool |
-|---|---|---|---|
-| React | 18.3.1 | UI framework | Industry standard, component-based, large ecosystem |
-| Recharts | 2.12.7 | Live charts and graphs | Built for React, easy API, good performance |
-| Tailwind CSS | 3.4.4 | Styling | Utility-first, fast prototyping, no CSS files needed |
-| Axios | 1.7.2 | API calls from React | Clean promise-based HTTP, good error handling |
-| Vite | 5.2.13 | Build tool | Starts in <1 second, hot reload, minimal config |
-| Zustand | Latest | State management | Simpler than Redux, exactly right for this complexity level |
-
-#### Infrastructure
-
-| Tool | Purpose | Why |
-|---|---|---|
-| Docker | Containerize entire stack | One command to run everything |
-| Docker Compose | Orchestrate frontend + backend | Simple YAML config |
-| Git + GitHub | Version control | Industry standard |
-
-### Complete Requirements Files
-
-**`backend/requirements.txt`**
-```
-fastapi==0.111.0
-uvicorn==0.30.1
-pydantic==2.7.1
-xgboost==2.0.3
-scikit-learn==1.5.0
-torch==2.3.0
-shap==0.45.0
-numpy==1.26.4
-pandas==2.2.2
-sqlalchemy==2.0.30
-joblib==1.4.2
-websockets==12.0
-python-multipart==0.0.9
-matplotlib==3.9.0
-seaborn==0.13.2
-```
-
-**`frontend/package.json` (dependencies section)**
-```json
-{
-  "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "recharts": "^2.12.7",
-    "axios": "^1.7.2",
-    "zustand": "^4.5.2",
-    "lodash": "^4.17.21"
-  },
-  "devDependencies": {
-    "vite": "^5.2.13",
-    "@vitejs/plugin-react": "^4.3.0",
-    "tailwindcss": "^3.4.4",
-    "autoprefixer": "^10.4.19",
-    "postcss": "^8.4.38"
-  }
-}
-```
-
----
-
-## 📁 Project Structure
-
-```
-manufacturing-ai-track-a/
-│
-├── 📄 README.md                          ← This file
-├── 📄 docker-compose.yml                 ← Run everything in one command
-│
-├── 📂 backend/
-│   ├── 📄 main.py                        ← FastAPI application entry point
-│   ├── 📄 requirements.txt
-│   ├── 📄 Dockerfile
-│   │
-│   ├── 📂 data/
-│   │   ├── 📄 generate_batch_data.py     ← Generates 2000 batch records (CSV)
-│   │   ├── 📄 generate_power_curves.py   ← Generates 2000 power curve files
-│   │   ├── 📄 batch_data.csv             ← OUTPUT: 2000 historical batches
-│   │   └── 📂 power_curves/
-│   │       ├── 📄 B0000.npy              ← Power curve for batch 0
-│   │       ├── 📄 B0001.npy
-│   │       └── 📄 ... (2000 files)
-│   │
-│   ├── 📂 preprocessing/
-│   │   ├── 📄 pipeline.py                ← Master pipeline: runs all 4 steps
-│   │   ├── 📄 imputer.py                 ← KNN missing value imputation
-│   │   ├── 📄 outlier_detector.py        ← IQR outlier capping
-│   │   ├── 📄 feature_engineer.py        ← 7 derived feature calculations
-│   │   └── 📄 normalizer.py              ← StandardScaler + save/load
-│   │
-│   ├── 📂 models/
-│   │   ├── 📄 multi_target_predictor.py  ← XGBoost MultiOutputRegressor
-│   │   ├── 📄 lstm_autoencoder.py        ← PyTorch LSTM anomaly detector
-│   │   ├── 📄 fault_classifier.py        ← RandomForest fault type diagnosis
-│   │   ├── 📄 sliding_window.py          ← Real-time updating forecaster
-│   │   ├── 📄 evaluate_all.py            ← Compute MAPE, MAE, RMSE for all models
-│   │   └── 📂 trained/                   ← Saved model artifacts
-│   │       ├── 📄 multi_target.pkl
-│   │       ├── 📄 lstm_autoencoder.pt
-│   │       ├── 📄 fault_classifier.pkl
-│   │       ├── 📄 scaler.pkl
-│   │       ├── 📄 curve_scaler.pkl
-│   │       └── 📄 anomaly_threshold.npy
-│   │
-│   ├── 📂 explainability/
-│   │   ├── 📄 shap_explainer.py          ← SHAP value computation + plots
-│   │   └── 📄 plain_english.py           ← Convert SHAP values → human text
-│   │
-│   ├── 📂 api/
-│   │   ├── 📄 schemas.py                 ← Pydantic request/response models
-│   │   └── 📂 routes/
-│   │       ├── 📄 predict.py             ← /predict/batch + /predict/realtime
-│   │       ├── 📄 anomaly.py             ← /anomaly/detect
-│   │       ├── 📄 explain.py             ← /explain/{batch_id}
-│   │       ├── 📄 recommend.py           ← /recommendations/{batch_id}
-│   │       └── 📄 health.py              ← /health
-│   │
-│   └── 📂 database/
-│       ├── 📄 db.py                      ← SQLAlchemy setup + connection
-│       ├── 📄 models.py                  ← Table definitions
-│       └── 📄 batch_log.db               ← SQLite database file (auto-created)
-│
-├── 📂 frontend/
-│   ├── 📄 package.json
-│   ├── 📄 vite.config.js
-│   ├── 📄 tailwind.config.js
-│   ├── 📄 Dockerfile
-│   │
-│   └── 📂 src/
-│       ├── 📄 App.jsx                    ← Root component, layout
-│       ├── 📄 main.jsx                   ← React entry point
-│       │
-│       ├── 📂 components/
-│       │   ├── 📄 PreBatchPanel.jsx       ← Enter params, see prediction
-│       │   ├── 📄 LiveMonitor.jsx         ← Real-time energy vs target chart
-│       │   ├── 📄 AnomalyDetector.jsx     ← Power curve + anomaly gauge
-│       │   ├── 📄 ShapChart.jsx           ← Feature contribution bar chart
-│       │   ├── 📄 WhatIfSimulator.jsx     ← Parameter sliders
-│       │   ├── 📄 CarbonGauge.jsx         ← CO₂ budget fuel gauge
-│       │   └── 📄 AlertBanner.jsx         ← Top-of-screen alert messages
-│       │
-│       ├── 📂 hooks/
-│       │   ├── 📄 usePrediction.js        ← POST /predict/batch
-│       │   ├── 📄 useRealtime.js          ← POST /predict/realtime every 30s
-│       │   ├── 📄 useAnomaly.js           ← POST /anomaly/detect
-│       │   └── 📄 useWebSocket.js         ← WebSocket live data connection
-│       │
-│       └── 📂 store/
-│           └── 📄 batchStore.js           ← Zustand global state
-│
-├── 📂 notebooks/
-│   ├── 📄 01_data_exploration.ipynb      ← EDA visualizations
-│   ├── 📄 02_model_training.ipynb        ← Step-by-step training walkthrough
-│   ├── 📄 03_anomaly_analysis.ipynb      ← Power curve pattern analysis
-│   └── 📄 04_shap_analysis.ipynb         ← Explainability deep dive
-│
-└── 📂 demo/
-    ├── 📄 demo_scenario.py               ← Scripted anomaly demo
-    └── 📄 demo_data.json                 ← Pre-baked demo batch data
-```
-
----
-
-## ⚙️ Setup & Installation
-
-### Prerequisites
-
-```bash
-# Check Python version (need 3.10+)
-python --version
-
-# Check Node version (need 18+)
-node --version
-
-# Check Git
-git --version
-```
-
-### Step 1 — Clone the Repository
-
-```bash
-git clone https://github.com/your-team/manufacturing-ai-track-a.git
-cd manufacturing-ai-track-a
-```
-
-### Step 2 — Backend Setup
-
-```bash
-cd backend
-
-# Create virtual environment (keeps dependencies isolated)
-python -m venv venv
-
-# Activate virtual environment
-source venv/bin/activate      # Mac / Linux
-venv\Scripts\activate         # Windows
-
-# Install all Python dependencies
-pip install -r requirements.txt
-
-# Verify installation
-python -c "import xgboost, torch, shap, fastapi; print('All packages installed ✅')"
-```
-
-### Step 3 — Generate Data
-
-```bash
-# Generate 2000 synthetic batch records
-python data/generate_batch_data.py
-# Output: data/batch_data.csv
-
-# Generate 2000 power curve files
-python data/generate_power_curves.py
-# Output: data/power_curves/B0000.npy ... B1999.npy
-
-# Verify
-ls data/power_curves/ | wc -l   # should print 2000
-```
-
-### Step 4 — Train All Models
-
-```bash
-# Step 4a: Run preprocessing pipeline + train multi-target predictor
-python models/multi_target_predictor.py --train
-# Output: models/trained/multi_target.pkl
-#         models/trained/scaler.pkl
-
-# Step 4b: Train LSTM Autoencoder (takes ~5 minutes on CPU)
-python models/lstm_autoencoder.py --train
-# Output: models/trained/lstm_autoencoder.pt
-#         models/trained/curve_scaler.pkl
-#         models/trained/anomaly_threshold.npy
-
-# Step 4c: Train fault type classifier
-python models/fault_classifier.py --train
-# Output: models/trained/fault_classifier.pkl
-
-# Step 4d: Evaluate all models and print accuracy report
-python models/evaluate_all.py
-```
-
-Expected evaluation output:
-```
-╔══════════════════════════════════════════════════╗
-║         MODEL PERFORMANCE REPORT                 ║
-╠═══════════════════════╦══════════╦═══════════════╣
-║ Target                ║ Accuracy ║ Status        ║
-╠═══════════════════════╬══════════╬═══════════════╣
-║ quality_score         ║  94.9%   ║ ✅ PASS       ║
-║ yield_pct             ║  96.2%   ║ ✅ PASS       ║
-║ performance_pct       ║  93.7%   ║ ✅ PASS       ║
-║ energy_kwh            ║  95.8%   ║ ✅ PASS       ║
-╠═══════════════════════╬══════════╬═══════════════╣
-║ LSTM Anomaly F1       ║  0.912   ║ ✅ PASS       ║
-║ Fault Classifier Acc  ║  88.4%   ║ ✅ PASS       ║
-╚═══════════════════════╩══════════╩═══════════════╝
-All targets exceed 90% accuracy requirement ✅
-```
-
-### Step 5 — Frontend Setup
-
-```bash
-cd ../frontend
-
-# Install Node dependencies
-npm install
-
-# Verify
-npm run dev -- --host
-# Should show: Local: http://localhost:5173
-```
-
----
-
-## 🚀 Running the Project
-
-### Option A — Run Manually (Two Terminals)
-
-**Terminal 1 — Backend:**
-```bash
-cd backend
-source venv/bin/activate
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-**Terminal 2 — Frontend:**
-```bash
-cd frontend
-npm run dev
-```
-
-Then open:
-- Dashboard: `http://localhost:5173`
-- API Docs: `http://localhost:8000/docs`
-- API Health: `http://localhost:8000/health`
-
-### Option B — Run with Docker (Single Command)
-
-```bash
-# Build and start everything
-docker-compose up --build
-
-# Stop everything
-docker-compose down
-```
-
-`docker-compose.yml`:
-```yaml
-version: "3.9"
-services:
-  backend:
-    build: ./backend
-    ports: ["8000:8000"]
-    volumes: ["./backend/data:/app/data"]
-
-  frontend:
-    build: ./frontend
-    ports: ["5173:5173"]
-    environment:
-      - VITE_API_URL=http://localhost:8000
-    depends_on: [backend]
-```
-
----
-
-## 📡 API Reference
-
-All endpoints are documented interactively at `http://localhost:8000/docs`
-
-### `GET /health`
-
-Check that server is running and models are loaded.
-
-**Response:**
-```json
-{
-  "status": "running",
-  "models_loaded": true,
-  "version": "1.0.0"
-}
-```
-
----
-
-### `POST /predict/batch`
-
-Predict all 4 targets from batch setup parameters. Call this before or at the start of a batch.
-
-**Request:**
-```json
-{
-  "temperature": 183,
-  "conveyor_speed": 76,
-  "hold_time": 18,
-  "batch_size": 500,
-  "material_type": 1,
-  "hour_of_day": 9,
-  "operator_exp": 1
-}
-```
-
-**Response:**
-```json
-{
-  "batch_id": "BATCH_20250114_091233",
-  "predictions": {
-    "quality_score": 91.2,
-    "yield_pct": 93.4,
-    "performance_pct": 92.1,
-    "energy_kwh": 38.8,
-    "co2_kg": 31.8
-  },
-  "confidence_intervals": {
-    "energy_kwh": { "lower": 36.1, "upper": 41.5 }
-  },
-  "carbon_budget": {
-    "batch_budget_kg": 42.0,
-    "predicted_usage_kg": 31.8,
-    "status": "ON_TRACK",
-    "headroom_kg": 10.2
-  }
-}
-```
-
----
-
-### `POST /predict/realtime`
-
-Update prediction mid-batch using actual data collected so far. Call every 30 seconds.
-
-**Request:**
-```json
-{
-  "original_params": {
-    "temperature": 183,
-    "conveyor_speed": 76,
-    "hold_time": 18,
-    "batch_size": 500,
-    "material_type": 1,
-    "hour_of_day": 9
-  },
-  "partial_data": {
-    "elapsed_minutes": 8,
-    "energy_so_far": 14.8,
-    "avg_power_kw": 5.9,
-    "anomaly_events": 1
-  }
-}
-```
-
-**Response:**
-```json
-{
-  "progress_pct": 44.4,
-  "updated_predictions": {
-    "quality_score": 90.9,
-    "yield_pct": 93.1,
-    "performance_pct": 91.8,
-    "energy_kwh": 44.5
-  },
-  "confidence": "±2.1 kWh",
-  "alert": {
-    "severity": "WARNING",
-    "message": "Energy trending 14.7% above target",
-    "recommended_action": "Reduce conveyor speed from 76% to 70%",
-    "estimated_saving_kwh": 2.1,
-    "quality_impact_pct": -0.3
-  }
-}
-```
-
----
-
-### `POST /anomaly/detect`
-
-Analyze a power curve segment for anomalies and diagnose the fault type.
-
-**Request:**
-```json
-{
-  "batch_id": "BATCH_20250114_091233",
-  "power_readings": [4.1, 4.2, 4.15, 4.8, 5.1, 4.9, 5.3, 4.7],
-  "elapsed_seconds": 480
-}
-```
-
-**Response:**
-```json
-{
-  "anomaly_score": 0.71,
-  "threshold": 0.30,
-  "is_anomaly": true,
-  "severity": "WARNING",
-  "diagnosis": {
-    "fault_type": "wet_material",
-    "confidence": 0.84,
-    "human_readable": "Power curve shows irregular spikes consistent with high raw material moisture content",
-    "recommended_action": "Extend drying phase by 4 minutes",
-    "estimated_energy_impact_kwh": 1.8,
-    "estimated_quality_impact_pct": -8.4
-  }
-}
-```
-
----
-
-### `GET /explain/{batch_id}?target=energy`
-
-Get SHAP explanation for a prediction. Target options: `energy`, `quality`, `yield`, `performance`.
-
-**Response:**
-```json
-{
-  "batch_id": "BATCH_20250114_091233",
-  "target": "energy",
-  "baseline_prediction": 38.2,
-  "final_prediction": 44.5,
-  "feature_contributions": [
-    {
-      "feature": "hold_time",
-      "value": 22.0,
-      "contribution": 3.8,
-      "direction": "increases_energy",
-      "plain_english": "Hold time of 22 min (optimal: 18 min) increased predicted energy by 3.8 kWh"
-    },
-    {
-      "feature": "material_type",
-      "value": 2,
-      "contribution": 1.9,
-      "direction": "increases_energy",
-      "plain_english": "Type-C material requires more energy in drying phase (+1.9 kWh)"
-    }
-  ],
-  "summary": "Hold time is the dominant factor. Reducing from 22 to 17 minutes is estimated to save 3.1 kWh with minimal yield impact (-0.2%)."
-}
-```
-
----
-
-### `GET /model/features`
-
-Get feature importance scores for all 4 prediction models.
-
-**Response:**
-```json
-{
-  "energy": {
-    "hold_time": 0.34,
-    "material_type": 0.19,
-    "conveyor_speed": 0.15,
-    "temperature": 0.12,
-    "batch_size": 0.09
-  },
-  "quality": { ... },
-  "yield": { ... },
-  "performance": { ... }
-}
-```
-
----
-
-## 🖥 Dashboard Guide
-
-### Panel 1 — Pre-Batch Prediction Panel (Top Left)
-
-**What it shows:** Input form for batch parameters + all 4 predictions before the batch starts
-
-**How to use:**
-1. Enter all batch parameters (temperature, speed, hold time, etc.)
-2. Click "Get Prediction" — model runs in <50ms
-3. Review predicted Quality, Yield, Performance, Energy, and CO₂
-4. Adjust parameters if needed (use What-If Simulator)
-5. Click "Start Batch" to begin live monitoring
-
-**What the carbon indicator means:**
-- 🟢 Green: Predicted CO₂ is within batch budget
-- 🟡 Amber: Predicted CO₂ is 80–100% of budget
-- 🔴 Red: Predicted CO₂ exceeds budget — consider adjustments
-
----
-
-### Panel 2 — Live Energy Monitor (Top Right)
-
-**What it shows:** Real-time line chart with two lines:
-- **Orange line:** Predicted final energy (updates every 30 seconds)
-- **Blue line:** Actual energy consumed so far
-
-**How to read it:**
-- Both lines close together = batch on track
-- Orange line rising above blue = model predicting overrun
-- Alert banner appears when deviation exceeds 15%
-
----
-
-### Panel 3 — Power Curve Anomaly Detector (Bottom Left)
-
-**What it shows:**
-- Live power draw curve (updates every second)
-- Anomaly score gauge (0–1 scale)
-- Fault type diagnosis when anomaly detected
-- Recommended action with estimated impact
-
-**Alert levels:**
-- 🟢 Score < 0.15: Normal operation
-- 🟡 Score 0.15–0.30: Watch — monitor next few batches
-- 🟠 Score 0.30–0.60: Warning — investigate
-- 🔴 Score > 0.60: Critical — immediate action required
-
----
-
-### Panel 4 — SHAP Feature Explanation (Bottom Right)
-
-**What it shows:**
-- Horizontal bar chart — one bar per feature
-- Bar direction: right = increases energy, left = decreases it
-- Bar length = magnitude of contribution in kWh
-- Plain English summary below the chart
-
-**How to use it:**
-- Identify the longest bar — that is the biggest lever for energy savings
-- Click any bar to see the exact value of that feature and how changing it would affect the prediction
-
----
-
-## 📈 Model Performance & Validation
-
-### Multi-Target Predictor
-
-| Target | MAE | RMSE | MAPE | Accuracy |
-|---|---|---|---|---|
-| quality_score | 1.28% | 1.74% | 5.1% | **94.9%** ✅ |
-| yield_pct | 0.98% | 1.31% | 3.8% | **96.2%** ✅ |
-| performance_pct | 1.41% | 1.89% | 6.3% | **93.7%** ✅ |
-| energy_kwh | 1.62 kWh | 2.14 kWh | 4.2% | **95.8%** ✅ |
-
-All targets exceed the required 90% accuracy threshold.
-
-### LSTM Autoencoder (Anomaly Detection)
-
-| Metric | Value | Target |
-|---|---|---|
-| Precision | 0.93 | > 0.85 ✅ |
-| Recall | 0.89 | > 0.85 ✅ |
-| F1-Score | 0.91 | > 0.85 ✅ |
-| False Positive Rate | 4.2% | < 10% ✅ |
-
-### Fault Type Classifier
-
-| Fault Type | Precision | Recall | F1 |
-|---|---|---|---|
-| normal | 0.97 | 0.96 | 0.97 |
-| bearing_wear | 0.89 | 0.91 | 0.90 |
-| wet_material | 0.86 | 0.88 | 0.87 |
-| calibration_needed | 0.83 | 0.81 | 0.82 |
-| **Overall** | **0.89** | **0.89** | **0.89** |
-
-### System Performance
-
-| Metric | Value | Requirement |
-|---|---|---|
-| API inference latency | 48ms | < 100ms ✅ |
-| Anomaly detection latency | 210ms | < 500ms ✅ |
-| Dashboard update frequency | 30 seconds | ✅ |
-| Model load time (startup) | 1.2 seconds | ✅ |
-
----
-
-## 🎬 Demo Scenario
-
-This is the 3-minute scripted live demo for the hackathon presentation. Every step is deliberate. Practice it three times before presenting.
-
-### Setup (30 seconds before presenting)
-
-1. Open dashboard at `http://localhost:5173`
-2. Open API docs at `http://localhost:8000/docs` in a second tab
-3. Have `demo/demo_scenario.py` ready to run in terminal
-
-### The Script
-
-```
-T=0:00 ─────────────────────────────────────────────
-"Let me show you a complete batch from start to finish."
-
-Enter parameters on dashboard:
-→ Temperature: 183°C
-→ Conveyor Speed: 76%
-→ Hold Time: 18 min
-→ Material: Type-B
-→ Batch Size: 500 kg
-
-Click "Get Prediction"
-
-Dashboard shows:
-→ Quality: 91.2%  Yield: 93.4%  Energy: 38.8 kWh
-→ SHAP chart shows hold_time as top energy driver
-→ Carbon gauge: 🟢 ON TRACK (31.8 kg / 42 kg budget)
-
-SAY: "Before we even start the batch, the operator knows
-     exactly what to expect and which parameter to watch."
-
-Click "Start Batch"
-
-T=0:45 ─────────────────────────────────────────────
-"Batch is running. Power curve is normal. Anomaly
- score is 0.09 — well within safe range."
-
-T=1:00 ─────────────────────────────────────────────
-"Now I'm going to inject an event. The raw material
- that just came in has higher moisture content than
- declared. This is a common real-world problem."
-
-Run: python demo/demo_scenario.py --inject wet_material
-
-Dashboard updates:
-→ Power curve becomes spiky
-→ Anomaly score jumps to 0.73 (threshold: 0.30)
-→ Panel turns RED
-
-SAY: "The LSTM Autoencoder detected this within
-     seconds. It recognized the spike pattern as
-     consistent with wet raw material — not a
-     machine problem."
-
-T=1:30 ─────────────────────────────────────────────
-Dashboard shows alert:
-→ "ANOMALY: Wet material pattern detected"
-→ "Predicted energy has increased: 38.8 → 46.2 kWh"
-→ "Recommended: Extend drying phase by 4 minutes"
-→ "Estimated saving if applied: 5.1 kWh"
-
-SAY: "The system doesn't just say 'something is wrong.'
-     It tells the operator exactly what to do and what
-     the impact will be."
-
-Operator clicks [Apply Recommendation]
-
-T=2:15 ─────────────────────────────────────────────
-Dashboard updates:
-→ Energy forecast corrects: 46.2 → 41.1 kWh
-→ SHAP chart updates showing drying extension impact
-→ Carbon gauge returns to 🟢
-
-SAY: "By acting at minute 8 of a 30-minute batch,
-     we recovered 5.1 kWh — a 13% reduction. Without
-     this system, the operator would have found out
-     at the end-of-shift report. Too late."
-
-T=2:45 ─────────────────────────────────────────────
-Show What-If Simulator
-
-SAY: "The operator can also explore 'what if' before
-     committing. Watch the predictions update live
-     as I move these sliders."
-
-Drag hold_time from 18 to 25 minutes
-→ Energy prediction jumps: 38.8 → 47.1 kWh
-→ Quality prediction rises: 91.2 → 93.8%
-→ SHAP chart updates in real time
-
-SAY: "Trade-off visible instantly. The operator
-     can find the right balance before starting —
-     not discover it after."
-
-T=3:00 ─────────────────────────────────────────────
-SAY: "That's the core loop: predict before, monitor
-     during, detect early, explain clearly, act fast.
-     Every second of delay in a factory costs money
-     and carbon. We eliminate that delay."
-```
-
-### Key Numbers to Quote in Presentation
-
-| Metric | Value | Source |
-|---|---|---|
-| Average energy overrun caught | 13% per anomalous batch | Demo scenario |
-| Anomaly detection speed | Minute 8 of 30-min batch | Demo scenario |
-| Prediction accuracy | >93% on all 4 targets | Model evaluation |
-| API response time | <50ms | Performance test |
-| Estimated annual savings (100 batches/day) | ~18,900 kWh / 15,498 kg CO₂ | ROI calculation |
-
----
-
-## 🚀 Future Scope
-
-> *These features are planned for development after the hackathon. Each one is grounded in the problem statement and solves a specific operator pain point.*
-
----
-
-### 🟢 Near Term (0–3 months)
-
-#### F4.1 — Conversational Intelligence Layer (RAG + LLM)
-
-**The problem:** All the insights generated by the system — predictions, anomalies, decisions, patterns — sit in a database. Operators don't have time to query logs. Engineers don't know SQL.
-
-**The solution:** A chat panel where anyone types a plain English question and gets a specific, data-backed answer in seconds.
-
-```
-Operator: "Why did Monday morning use 40% more energy?"
-
-System:  "Monday morning (Batches 41–47) averaged 47.3 kWh vs the
-          33.8 kWh baseline. Two causes accounted for 89% of the
-          overrun:
-          1. Batches 41–44 used lot MC-2291 (Type-C, high moisture).
-             The drying recommendation was rejected twice at 08:14
-             and 08:23. Estimated preventable waste: 12.4 kWh.
-          2. Machine 3 bearing anomaly added ~4.8 kWh from Batch 43."
-```
-
-**How it works (RAG Pipeline):**
-```
-Question → Parse intent (time, metric, question type)
-         → Query SQLite for relevant batch/anomaly/decision records
-         → Format records as context string
-         → Send to LLM (Claude API / GPT-4o / local Ollama)
-         → Stream response back
-         → Ground every number in a clickable log entry
-```
-
-**Tech:** LangChain or raw API calls, Ollama (free/local), React chat component with streaming
-
-**Hallucination protection:** System prompt explicitly instructs "never state figures not present in the retrieved context." Every specific claim links to the source log entry.
-
----
-
-#### F4.2 — Operator Feedback Loop with Confidence Scoring
-
-**The problem:** When operators reject recommendations, the system logs "REJECTED" but learns nothing about *why*. Low-confidence recommendations keep being generated with the same confidence.
-
-**The solution:** A 3-option follow-up when a recommendation is rejected:
-- A: "The suggestion seems wrong"
-- B: "Already handled it differently"
-- C: "Not a priority right now"
-
-Over time, builds per-recommendation-type confidence scores. Recommendations below 60% acceptance get flagged for retraining with more domain input.
-
-```
-RECOMMENDATION CONFIDENCE SCORES
-────────────────────────────────────────
-Reduce conveyor speed        91%  🟢 HIGH
-Extend cooldown              87%  🟢 HIGH
-Adjust temperature           73%  🟡 MEDIUM
-Extend drying phase          54%  🔴 LOW  ← needs investigation
-```
-
----
-
-#### F4.3 — Batch Genealogy Tracker
-
-**The problem:** When a batch fails QC, engineers spend hours reconstructing what happened. Often the root cause is never definitively found.
-
-**The solution:** Every batch gets a complete linked timeline — every sensor reading, every anomaly event, every recommendation, every operator decision — stored permanently and searchable in one view.
-
-```
-BATCH #47 TIMELINE
-──────────────────────────────────────────────
-08:00  Batch started (material: lot MC-2291)
-08:14  🔴 Anomaly detected — wet material (score: 0.81)
-08:15  ❌ Recommendation rejected by OP-03
-08:22  ⚠️  Energy forecast updated: 38.8 → 46.2 kWh
-08:23  ❌ Second recommendation rejected
-08:34  Batch completed
-
-Final: Quality 74.1% vs predicted 91.2%  (-18.6%)
-Root cause: High-moisture material + 2 rejected recs
-```
-
----
-
-#### F4.4 — Predictive Maintenance Scheduling Engine
-
-**The problem:** The LSTM Autoencoder says "bearing fault detected." But the plant manager needs to know: *when will it fail? What does it cost to act now vs wait?*
-
-**The solution:** Track degradation rate across batches. Project failure probability. Compute cost-benefit.
-
-```
-MACHINE 3 — BEARING WEAR FORECAST
-─────────────────────────────────────────────
-Current anomaly score: 0.61
-Rate of increase: +0.075 per 4 batches
-Time to 80% failure probability: ~11 batches (4 days)
-
-COST COMPARISON:
-Maintain now:   4 hrs downtime, ₹18,000
-Wait for failure: 14 hrs downtime, ₹67,000
-
-RECOMMENDATION: Schedule within 3 days
-[ 📅 Schedule Maintenance ]
-```
-
----
-
-#### F4.5 — Shift Handover Intelligence
-
-**The problem:** When shifts change, the incoming operator loses all context about what happened in the last 4–8 hours. Paper logbooks are incomplete. Critical context is forgotten.
-
-**The solution:** Auto-generated structured handover brief at every shift change. The LLM reads the outgoing shift's logs and writes a concise, specific brief.
-
-```
-SHIFT HANDOVER — Morning → Afternoon
-──────────────────────────────────────────────────
-Batches: 41–47 (6 completed)
-Energy: 41.2 kWh avg (8% above baseline) ⚠️
-
-ACTIVE ALERTS:
-→ Machine 3 bearing score: 0.61 — trending up
-
-DECISIONS MADE THIS SHIFT:
-→ 08:15 Drying recommendation rejected (Batch 41)
-   Note: Material lot MC-2291 high moisture throughout
-
-CURRENT BATCH (B47): Minute 8 of 30 — on track.
-Watch hold time — at 19 min, recommend capping at 18.
-──────────────────────────────────────────────────
-```
-
----
-
-### 🔵 Long Term Vision (3–12 months)
-
-#### F5.1 — Multi-Machine Correlation Analysis
-
-Discovers cross-machine cause-effect relationships invisible in single-machine analysis.
-
-*"When Machine A runs 7% hot in phase 1, Machine C needs 4–6 minutes extra cooldown in 83% of cases."*
-
-Enables cascade predictions — fix upstream before downstream is affected. Requires multi-machine data streams and time-lag correlation engine. Estimated 1 month of development.
-
----
-
-#### F5.2 — Full Carbon Budget Allocation System
-
-Dynamic daily carbon budget that accounts for: monthly regulatory target, days remaining, planned product mix, and recent batch efficiency. Per-batch carbon target adapts dynamically every day.
-
-Live carbon gauge on each batch. When budget overrun is predicted, AI suggests parameter changes that trade minimal yield impact for significant carbon reduction.
-
----
-
-#### F5.3 — Automated Regulatory Compliance Reporting
-
-Since all energy and carbon data is already logged per batch, compliance reporting becomes one click instead of two days.
-
-Select time period → select regulatory format → export formatted PDF with: total energy, total CO₂, breakdown by product line, comparison vs targets, corrective actions taken.
-
-Directly addresses the "Adaptive Goal Setting: Integrate regulatory requirements" problem statement requirement.
-
----
-
-#### F5.4 — Mobile Alert App for Supervisors
-
-A Progressive Web App (installs on any phone, no app store needed) that sends push notifications when critical events fire — machine anomalies, energy budget overruns, predicted quality failures.
-
-Supervisor taps notification → opens mini-dashboard on phone showing that specific batch, anomaly, and recommended action. Acknowledge in one tap.
-
-Notification tiers: 🔴 Critical (immediate), 🟡 Warning (push), 🔵 Info (digest).
-
----
-
-#### F5.5 — Natural Language Query Interface
-
-A focused query panel for everyday factual questions. Lighter than the full RAG system — handles instant answers to common manufacturing questions.
-
-```
-"Best temperature settings for Type-B material?"
-→ "Based on 847 Type-B batches:
-   Best quality: 183–186°C (avg quality: 93.1%)
-   Best efficiency: 179–182°C (avg energy: 36.2 kWh)
-   Balanced: 182–184°C (quality: 91.8%, energy: 37.9 kWh)"
-```
-
-Pre-built query buttons for the 10 most common questions. Zero learning curve for operators.
-
----
-
-## 🎯 Evaluation Criteria Mapping
-
-The hackathon awards 70% for Technical Assessment and 30% for Presentation. Here is exactly how this project maps to every scoring criterion.
-
-### Technical Assessment (70%)
-
-#### Primary Component — Algorithm Development (35%)
-
-| Sub-criterion | Our Implementation | Evidence |
-|---|---|---|
-| Multi-target prediction accuracy | XGBoost MultiOutput: >93% on all 4 targets | `models/evaluate_all.py` output |
-| Model robustness | TimeSeriesSplit CV, subsample=0.8, colsample=0.8 | `models/multi_target_predictor.py` |
-| Innovation in energy pattern analysis | LSTM Autoencoder + 4-class fault classifier | `models/lstm_autoencoder.py` + `fault_classifier.py` |
-| Temporal dependency capture | LSTM sequence modeling, sliding window features | `models/sliding_window.py` |
-| Ensemble methods | XGBoost = 300-tree ensemble, RF fault classifier | Architecture docs |
-
-#### Primary Component — Implementation Quality (15%)
-
-| Sub-criterion | Our Implementation | Evidence |
-|---|---|---|
-| Code efficiency | Modular structure, models loaded once at startup, async FastAPI | `backend/main.py` |
-| Model deployment | FastAPI with auto-reload, Docker containerization | `docker-compose.yml` |
-| Real-time prediction capability | WebSocket + 30-second sliding window updates | `api/routes/predict.py` |
-| API response time | <50ms inference | Performance benchmarks |
-
-#### Supporting Components (20%)
-
-| Sub-criterion | Our Implementation | Evidence |
-|---|---|---|
-| Integration & APIs (10%) | 6 REST endpoints + WebSocket, Pydantic validation, Swagger docs | `api/routes/` |
-| Data pipeline quality (5%) | 4-stage pipeline: imputation → outlier → feature eng → normalize | `preprocessing/pipeline.py` |
-| Demonstration (5%) | Scripted 3-minute wet-material anomaly demo | `demo/demo_scenario.py` |
-
-### Presentation Quality (30%)
-
-| Criterion | Our Approach |
-|---|---|
-| **Clarity** | SHAP plain-English explanations built into UI; every prediction comes with "why"; anomaly diagnoses in operator language |
-| **Innovation — Novel approaches** | LSTM Autoencoder for real-time power pattern analysis; fault-type classifier; sliding window confidence narrowing |
-| **Innovation — Futuristic outlook** | 11-feature future scope roadmap with RAG+LLM, predictive maintenance cost-benefit, mobile alerts, compliance reporting |
-| **Innovation — Gap analysis** | Addresses all 3 stated challenges: batch variability, static KPIs, conflicting objectives |
-| **Feasibility** | All tools open-source, runs on a laptop, Docker deployment, realistic 5-tier build plan with time estimates |
-
----
-
-## 👥 Team
-
-| Name | Role |
-|---|---|
-| Member 1 | ML Lead — Multi-target predictor, SHAP explainability |
-| Member 2 | Deep Learning — LSTM Autoencoder, fault classifier |
-| Member 3 | Backend — FastAPI, data pipeline, preprocessing |
-| Member 4 | Frontend — React dashboard, real-time charts, demo |
-
----
-
-## 📄 License
-
-MIT License — open for educational and hackathon use.
-
----
-
-## 📁 Related Documents
-
-| Document | Description |
-|---|---|
-| `feature_tier_list.md` | Complete feature breakdown with code snippets, build times, and priority ordering |
-| `future_scope.md` | Detailed specification of all 11 future features with architecture and operator impact |
-
----
-
-<div align="center">
-
-**Built for the AI-Driven Manufacturing Intelligence Hackathon**
-
-*Track A: Predictive Modelling Specialization*
-
-*"Every second of delay in a factory costs money and carbon. We eliminate that delay."*
-
-</div>
+*π0 — Pharmaceutical Intelligence Operations Platform*
+*Built for pharmaceutical tablet manufacturing. Designed from five perspectives. Honest about its limits. Ready to learn.*

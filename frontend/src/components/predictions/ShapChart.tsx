@@ -24,6 +24,8 @@ interface ShapChartProps {
   target?: string;
   /** When true, uses a lighter loading indicator for rapid updates */
   liveMode?: boolean;
+  /** Callback with SHAP contributions for downstream components (e.g. RecommendationPanel) */
+  onShapData?: (contributions: Array<{ feature: string; contribution: number; direction: string }>) => void;
 }
 
 /* ── Custom Tooltip ────────────────────────────────────────── */
@@ -51,7 +53,7 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 /* ── Component ─────────────────────────────────────────────── */
 
-export function ShapChart({ batchId, params, target = "energy_kwh", liveMode = false }: ShapChartProps) {
+export function ShapChart({ batchId, params, target = "energy_kwh", liveMode = false, onShapData }: ShapChartProps) {
   const [data, setData] = useState<ExplainResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +67,14 @@ export function ShapChart({ batchId, params, target = "energy_kwh", liveMode = f
     try {
       const response = await explainBatch(batchId, params, target);
       setData(response);
+      // Propagate SHAP contributions for recommendation engine
+      if (onShapData && response.feature_contributions) {
+        onShapData(response.feature_contributions.map(fc => ({
+          feature: fc.feature,
+          contribution: fc.contribution,
+          direction: fc.direction,
+        })));
+      }
     } catch (err: any) {
       console.error("[ShapChart]", err);
       setError(err.message ?? "Failed to fetch SHAP explanation");

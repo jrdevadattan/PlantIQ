@@ -33,8 +33,37 @@ DAILY_CO2_BUDGET_KG = 4200.0  # Total daily budget
 BATCHES_PER_DAY = 100         # Approximate batches per day
 BATCH_CO2_BUDGET = DAILY_CO2_BUDGET_KG / BATCHES_PER_DAY  # 42.0 kg per batch
 
-# Confidence interval width (% of prediction — conservative estimate)
-CI_PCT = 0.07  # ±7% for energy, tighter for others
+# ── Cost Translator (Decision Engine Component 3.1) ──────────
+from decision_engine.cost_translator import CostTranslator
+_cost_translator = CostTranslator()
+
+# ── Conformal Prediction Calibrator (replaces heuristic CIs) ──
+from models.conformal_calibrator import ConformalCalibrator
+
+_conformal: ConformalCalibrator | None = None
+
+def _get_conformal() -> ConformalCalibrator:
+    """Lazy-load conformal calibration data."""
+    global _conformal
+    if _conformal is None:
+        _conformal = ConformalCalibrator()
+        try:
+            _conformal.load()
+        except FileNotFoundError:
+            # Fallback: calibrate from evaluation report on first call
+            import json, os
+            report_path = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                "models", "trained", "evaluation_report.json",
+            )
+            with open(report_path) as f:
+                _conformal.calibrate_from_metrics(json.load(f))
+            _conformal.save()
+    return _conformal
+
+
+# Default coverage level for prediction intervals (90%)
+DEFAULT_COVERAGE = 0.90
 
 
 def _generate_batch_id() -> str:
@@ -71,23 +100,26 @@ def _compute_carbon_budget(energy_kwh: float) -> CarbonBudget:
 
 
 def _compute_confidence_intervals(predictions: dict) -> dict[str, ConfidenceInterval]:
-    """Compute confidence intervals for each target prediction."""
+    """Compute conformal prediction intervals for each target.
+
+    Uses split conformal prediction with empirically calibrated residual
+    quantiles instead of heuristic ±X%. Guarantees coverage ≥ 90%.
+    """
+    calibrator = _get_conformal()
+
     intervals = {}
-
-    # Different CI widths per target (energy is harder to predict precisely)
-    ci_widths = {
-        "energy_kwh": 0.07,
-        "quality_score": 0.02,
-        "yield_pct": 0.02,
-        "performance_pct": 0.03,
-    }
-
     for target in ["energy_kwh", "quality_score", "yield_pct", "performance_pct"]:
         val = predictions.get(target, 0)
-        width = ci_widths.get(target, 0.05)
+        try:
+            lower, upper = calibrator.get_interval(target, val, DEFAULT_COVERAGE)
+        except (KeyError, RuntimeError):
+            # Fallback: ±5% if calibration data missing for this target
+            lower = round(val * 0.95, 1)
+            upper = round(val * 1.05, 1)
+
         intervals[target] = ConfidenceInterval(
-            lower=round(val * (1 - width), 1),
-            upper=round(val * (1 + width), 1),
+            lower=round(lower, 1),
+            upper=round(upper, 1),
         )
 
     return intervals
@@ -122,11 +154,24 @@ async def predict_batch(request: BatchPredictionRequest) -> BatchPredictionRespo
         co2_kg=raw_preds.get("co2_kg", raw_preds["energy_kwh"] * CO2_FACTOR),
     )
 
+    # ── Cost translation (README Component 3.1) ─────────────
+    cost_breakdown = _cost_translator.translate(energy_kwh=raw_preds["energy_kwh"])
+    cost_summary = _cost_translator.summary_text(cost_breakdown)
+
     return BatchPredictionResponse(
         batch_id=_generate_batch_id(),
         predictions=predictions,
         confidence_intervals=_compute_confidence_intervals(raw_preds),
         carbon_budget=_compute_carbon_budget(raw_preds["energy_kwh"]),
+        cost_translation={
+            "predicted_cost_inr": cost_breakdown.predicted_cost_inr,
+            "target_cost_inr": cost_breakdown.target_cost_inr,
+            "cost_variance_inr": cost_breakdown.cost_variance_inr,
+            "monthly_projection_inr": cost_breakdown.monthly_cost_inr,
+            "co2_kg": cost_breakdown.co2_kg,
+            "co2_status": cost_breakdown.co2_status,
+            "summary": cost_summary,
+        },
     )
 
 
